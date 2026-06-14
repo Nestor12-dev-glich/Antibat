@@ -1,12 +1,3 @@
---[[
-    NINO HUB - COMPLETO
-    Versión integrada con:
-    - Auto Left/Right (waypoints Atr auto play)
-    - Auto Steal (AUTOGRABPRIME)
-    - Speed Bypass (Nither)
-    - Todas las funcionalidades originales
-]]
-
 do
 local TS = game:GetService("TweenService")
 local CG = game:GetService("CoreGui")
@@ -253,7 +244,6 @@ local Lighting = game:GetService("Lighting")
 local HS = game:GetService("HttpService")
 local LP = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- ============================================================
 -- NINO TIME (STUN TIMER) - TOGGLE INDEPENDIENTE
@@ -461,588 +451,18 @@ local function safeSetfpscap(v) if type(setfpscap) == "function" then pcall(setf
 local function safeSethiddenproperty(obj, prop, val) if type(sethiddenproperty) == "function" then pcall(sethiddenproperty, obj, prop, val) end end
 
 -- ============================================================
--- UI SPEED BYPASS (Nither)
--- ============================================================
-local RED = Color3.fromRGB(220, 30, 30)
-local WINE = Color3.fromRGB(140, 10, 40)
-local ROW_BG = Color3.fromRGB(20, 20, 35)
-local BTN_BG = Color3.fromRGB(30, 10, 15)
-local MIN_NORM = Color3.fromRGB(30, 10, 15)
-local MIN_HOV = Color3.fromRGB(60, 20, 25)
-local WHITE = Color3.new(1, 1, 1)
-local GUI_W = 230
-local GUI_H = 100
-local GUI_MIN = 40
-
-local speedFrame = Instance.new("Frame")
-speedFrame.Size = UDim2.new(0, GUI_W, 0, GUI_H)
-speedFrame.Position = UDim2.new(1, -240, 0.5, -50)
-speedFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-speedFrame.BackgroundTransparency = 0
-speedFrame.BorderSizePixel = 0
-speedFrame.Active = true
-speedFrame.ClipsDescendants = true
-speedFrame.Parent = CoreGui
-Instance.new("UICorner", speedFrame).CornerRadius = UDim.new(0, 10)
-
-local function redStroke(parent, thickness)
-    local s = Instance.new("UIStroke")
-    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    s.Thickness = thickness or 1.5
-    s.Color = RED
-    s.Parent = parent
-end
-redStroke(speedFrame, 1.5)
-
-local speedIcon = Instance.new("ImageLabel")
-speedIcon.Size = UDim2.new(0, 22, 0, 22)
-speedIcon.Position = UDim2.new(0, 8, 0, 9)
-speedIcon.BackgroundTransparency = 1
-speedIcon.Image = "rbxassetid://103327125341396"
-speedIcon.ImageColor3 = RED
-speedIcon.ScaleType = Enum.ScaleType.Fit
-speedIcon.Parent = speedFrame
-
-local speedTitle = Instance.new("TextLabel")
-speedTitle.Size = UDim2.new(1, -70, 0, 26)
-speedTitle.Position = UDim2.new(0, 36, 0, 7)
-speedTitle.BackgroundTransparency = 1
-speedTitle.Text = "Speed Bypass"
-speedTitle.TextColor3 = WHITE
-speedTitle.TextSize = 17
-speedTitle.Font = Enum.Font.Fantasy
-speedTitle.TextXAlignment = Enum.TextXAlignment.Left
-speedTitle.TextYAlignment = Enum.TextYAlignment.Center
-speedTitle.Parent = speedFrame
-
-local speedMinBtn = Instance.new("TextButton")
-speedMinBtn.Size = UDim2.new(0, 24, 0, 24)
-speedMinBtn.Position = UDim2.new(1, -32, 0, 8)
-speedMinBtn.BackgroundColor3 = MIN_NORM
-speedMinBtn.BorderSizePixel = 0
-speedMinBtn.Text = "-"
-speedMinBtn.TextColor3 = RED
-speedMinBtn.TextSize = 16
-speedMinBtn.Font = Enum.Font.Fantasy
-speedMinBtn.AutoButtonColor = false
-speedMinBtn.Parent = speedFrame
-Instance.new("UICorner", speedMinBtn).CornerRadius = UDim.new(0, 6)
-redStroke(speedMinBtn, 1.5)
-
-local speedMinimized = false
-speedMinBtn.MouseButton1Click:Connect(function()
-    speedMinimized = not speedMinimized
-    speedMinBtn.Text = speedMinimized and "+" or "-"
-    TweenService:Create(speedFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        Size = speedMinimized and UDim2.new(0, GUI_W, 0, GUI_MIN) or UDim2.new(0, GUI_W, 0, GUI_H)
-    }):Play()
-end)
-
-local speedRow = Instance.new("Frame")
-speedRow.Position = UDim2.new(0, 10, 0, 52)
-speedRow.Size = UDim2.new(1, -20, 0, 34)
-speedRow.BackgroundColor3 = ROW_BG
-speedRow.BorderSizePixel = 0
-speedRow.Parent = speedFrame
-Instance.new("UICorner", speedRow).CornerRadius = UDim.new(0, 8)
-redStroke(speedRow, 1.5)
-
-local speedRowLbl = Instance.new("TextLabel")
-speedRowLbl.Size = UDim2.new(1, -100, 1, 0)
-speedRowLbl.Position = UDim2.new(0, 10, 0, 0)
-speedRowLbl.BackgroundTransparency = 1
-speedRowLbl.Text = "Speed Bypass"
-speedRowLbl.TextColor3 = RED
-speedRowLbl.TextSize = 13
-speedRowLbl.Font = Enum.Font.Fantasy
-speedRowLbl.TextXAlignment = Enum.TextXAlignment.Left
-speedRowLbl.Parent = speedRow
-
-local speedKbBadge = Instance.new("Frame")
-speedKbBadge.Size = UDim2.new(0, 28, 0, 18)
-speedKbBadge.Position = UDim2.new(1, -84, 0.5, -9)
-speedKbBadge.BackgroundColor3 = BTN_BG
-speedKbBadge.BorderSizePixel = 0
-speedKbBadge.Parent = speedRow
-Instance.new("UICorner", speedKbBadge).CornerRadius = UDim.new(0, 5)
-redStroke(speedKbBadge, 1.2)
-
-local speedKbLbl = Instance.new("TextLabel")
-speedKbLbl.Size = UDim2.new(1, 0, 1, 0)
-speedKbLbl.BackgroundTransparency = 1
-speedKbLbl.Text = "V"
-speedKbLbl.TextColor3 = RED
-speedKbLbl.TextSize = 9
-speedKbLbl.Font = Enum.Font.GothamBold
-speedKbLbl.TextXAlignment = Enum.TextXAlignment.Center
-speedKbLbl.Parent = speedKbBadge
-
-local speedKbBtn = Instance.new("TextButton")
-speedKbBtn.Size = UDim2.new(1, 0, 1, 0)
-speedKbBtn.BackgroundTransparency = 1
-speedKbBtn.Text = ""
-speedKbBtn.Parent = speedKbBadge
-
-local speedTogTrack = Instance.new("Frame")
-speedTogTrack.Size = UDim2.new(0, 36, 0, 18)
-speedTogTrack.Position = UDim2.new(1, -46, 0.5, -9)
-speedTogTrack.BackgroundColor3 = Color3.fromRGB(60, 10, 20)
-speedTogTrack.BackgroundTransparency = 0
-speedTogTrack.BorderSizePixel = 0
-speedTogTrack.Parent = speedRow
-Instance.new("UICorner", speedTogTrack).CornerRadius = UDim.new(0, 9)
-redStroke(speedTogTrack, 1.5)
-
-local speedTogKnob = Instance.new("TextLabel")
-speedTogKnob.Size = UDim2.new(0, 18, 0, 18)
-speedTogKnob.AnchorPoint = Vector2.new(0.5, 0.5)
-speedTogKnob.Position = UDim2.new(0, 9, 0.5, 0)
-speedTogKnob.BackgroundTransparency = 1
-speedTogKnob.Text = ">"
-speedTogKnob.TextColor3 = WHITE
-speedTogKnob.TextSize = 13
-speedTogKnob.Font = Enum.Font.GothamBold
-speedTogKnob.TextXAlignment = Enum.TextXAlignment.Center
-speedTogKnob.Parent = speedTogTrack
-
-local speedTogBtn = Instance.new("TextButton")
-speedTogBtn.Size = UDim2.new(0, 46, 1, 0)
-speedTogBtn.Position = UDim2.new(1, -46, 0, 0)
-speedTogBtn.BackgroundTransparency = 1
-speedTogBtn.Text = ""
-speedTogBtn.Parent = speedRow
-
-local function speedSetEnabled(state)
-    speedBypassEnabled = state
-    local tw = TweenInfo.new(0.15)
-    speedTogKnob.Text = state and "<" or ">"
-    speedTogKnob.TextColor3 = WHITE
-    TweenService:Create(speedTogKnob, tw, {
-        Position = state and UDim2.new(0, 27, 0.5, 0) or UDim2.new(0, 9, 0.5, 0),
-    }):Play()
-    TweenService:Create(speedTogTrack, tw, {
-        BackgroundColor3 = state and WINE or Color3.fromRGB(60, 10, 20),
-    }):Play()
-    if state then
-        pcall(function()
-            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-            Lighting.GlobalShadows = false
-            Lighting.FogEnd = 9e9
-            for _, e in pairs(Lighting:GetChildren()) do
-                if e:IsA("BlurEffect") or e:IsA("BloomEffect") then e.Enabled = false end
-            end
-        end)
-    end
-end
-
-speedTogBtn.MouseButton1Click:Connect(function() speedSetEnabled(not speedBypassEnabled) end)
-
-speedKbBtn.MouseButton1Click:Connect(function()
-    if speedListeningForKey then return end
-    speedListeningForKey = true
-    speedKbLbl.Text = "?"
-    speedKbLbl.TextColor3 = Color3.fromRGB(255, 200, 50)
-end)
-
--- Draggable
-local speedDragging = false
-local speedDragStart, speedStartPos
-speedFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        local abs = speedFrame.AbsolutePosition
-        speedFrame.Position = UDim2.new(0, abs.X, 0, abs.Y)
-        speedDragging = true
-        speedDragStart = input.Position
-        speedStartPos = speedFrame.Position
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if not speedDragging then return end
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        if speedMinimized then speedDragging = false; return end
-        local d = input.Position - speedDragStart
-        local s = Workspace.CurrentCamera.ViewportSize
-        speedFrame.Position = UDim2.new(0,
-            math.clamp(speedStartPos.X.Offset + d.X, 0, s.X - GUI_W), 0,
-            math.clamp(speedStartPos.Y.Offset + d.Y, 0, s.Y - GUI_H))
-    end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        speedDragging = false
-    end
-end)
-
--- Keybind
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if speedListeningForKey then
-        if input.UserInputType == Enum.UserInputType.Keyboard then
-            speedToggleKey = input.KeyCode
-            speedKbLbl.Text = input.KeyCode.Name
-            speedKbLbl.TextColor3 = RED
-            speedListeningForKey = false
-            speedLastKeybindSet = tick()
-        end
-        return
-    end
-    if input.KeyCode == speedToggleKey and not gpe and (tick() - speedLastKeybindSet > 0.3) then
-        speedSetEnabled(not speedBypassEnabled)
-    end
-end)
-
--- Movimiento del Speed Bypass
-RunService.RenderStepped:Connect(function()
-    if not speedBypassEnabled then return end
-    local char = LP.Character
-    if char then
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hrp and hum and hum.MoveDirection.Magnitude > 0 then
-            hrp.Velocity = Vector3.new(
-                hum.MoveDirection.X * 31.25,
-                hrp.Velocity.Y,
-                hum.MoveDirection.Z * 31.25
-            )
-        end
-    end
-    local t = tick()
-    while tick() - t < 0.0112 do end
-end)
--- ============================================================
--- AUTO STEAL (AUTOGRABPRIME)
--- ============================================================
-local primeConfig = {
-    HOLD_MIN = 1.3,
-    HOLD_MAX = 2.6,
-    ENTRY_DELAY = 0.3,
-    COOLDOWN = 0.05,
-    STEAL_RANGE = 10,
-    PRIME_RANGE = 80,
-}
-
-local allAnimalsCache = {}
-local PromptMemoryCache = {}
-local InternalStealCache = {}
-local primeStealConnection = nil
-local syncRemotes = nil
-local plotAnimalSync = { caches = {}, connections = {} }
-
-local function primeSetupSync()
-    local Packages = ReplicatedStorage:WaitForChild("Packages")
-    local Datas = ReplicatedStorage:WaitForChild("Datas")
-    local AnimalsData = require(Datas:WaitForChild("Animals"))
-    local plots = workspace:WaitForChild("Plots")
-
-    syncRemotes = (function()
-        local folder = Packages:WaitForChild("Synchronizer")
-        return {
-            channelFolder = folder:WaitForChild("Channel"),
-            routeRemote = folder:WaitForChild("CommunicationRoute"),
-            requestData = folder:FindFirstChild("RequestData"),
-        }
-    end)()
-
-    local function splitSyncPath(path)
-        if typeof(path) == "table" then return path end
-        local out = {}
-        for part in string.gmatch(tostring(path), "[^%.]+") do
-            table.insert(out, tonumber(part) or part)
-        end
-        return out
-    end
-
-    local function resolveSyncPath(path, root)
-        local current = root
-        local parent = nil
-        local key = nil
-        for _, part in ipairs(splitSyncPath(path)) do
-            parent = current
-            key = part
-            current = current and current[part] or nil
-        end
-        return current, parent, key
-    end
-
-    local function applyPlotSyncDiff(channelName, packet)
-        local cache = plotAnimalSync.caches[channelName]
-        if typeof(cache) ~= "table" then return end
-        local path, action, a, b = packet[1], packet[2], packet[3], packet[4]
-        local current, parent, key = resolveSyncPath(path, cache)
-        if action == "Changed" then
-            if parent ~= nil then parent[key] = a end
-        elseif action == "ArrayInsert" then
-            if current ~= nil then table.insert(current, b, a) end
-        elseif action == "ArrayRemoved" then
-            if current ~= nil then table.remove(current, b) end
-        elseif action == "DictionaryInsert" then
-            if current ~= nil then current[b] = a end
-        elseif action == "DictionaryRemoved" then
-            if current ~= nil then current[b] = nil end
-        end
-    end
-
-    local function attachPlotChannel(remote)
-        if plotAnimalSync.connections[remote] then return end
-        local channelName = tostring(remote.Name)
-        if not plots:FindFirstChild(channelName) then return end
-        if syncRemotes.requestData and plotAnimalSync.caches[channelName] == nil then
-            local ok, data = pcall(function()
-                return syncRemotes.requestData:InvokeServer(channelName)
-            end)
-            if ok and typeof(data) == "table" then
-                plotAnimalSync.caches[channelName] = data
-            else
-                plotAnimalSync.caches[channelName] = {}
-            end
-        elseif plotAnimalSync.caches[channelName] == nil then
-            plotAnimalSync.caches[channelName] = {}
-        end
-        plotAnimalSync.connections[remote] = remote.OnClientEvent:Connect(function(queue)
-            for _, packet in ipairs(queue) do
-                applyPlotSyncDiff(channelName, packet)
-            end
-        end)
-    end
-
-    for _, child in ipairs(syncRemotes.channelFolder:GetChildren()) do
-        if child:IsA("RemoteEvent") then
-            attachPlotChannel(child)
-        end
-    end
-    syncRemotes.channelFolder.ChildAdded:Connect(function(child)
-        if child:IsA("RemoteEvent") then
-            attachPlotChannel(child)
-        end
-    end)
-    syncRemotes.routeRemote.OnClientEvent:Connect(function(actions)
-        for _, action in ipairs(actions) do
-            local kind, channelName = action[1], tostring(action[2])
-            if not plots:FindFirstChild(channelName) then continue end
-            if kind == "ListenerAdded" then
-                local remote = syncRemotes.channelFolder:FindFirstChild(channelName)
-                if remote and remote:IsA("RemoteEvent") then
-                    attachPlotChannel(remote)
-                end
-            elseif kind == "ListenerRemoved" then
-                for remote, conn in pairs(plotAnimalSync.connections) do
-                    if tostring(remote.Name) == channelName then
-                        conn:Disconnect()
-                        plotAnimalSync.connections[remote] = nil
-                        plotAnimalSync.caches[channelName] = nil
-                        break
-                    end
-                end
-            end
-        end
-    end)
-
-    return AnimalsData, plots
-end
-
-local primeAnimalsData, primePlots = primeSetupSync()
-
-local function getPlotOwnerPrime(plot)
-    local sign = plot:FindFirstChild("PlotSign")
-    local frame = sign and sign:FindFirstChild("SurfaceGui") and sign.SurfaceGui:FindFirstChild("Frame")
-    local label = frame and frame:FindFirstChild("TextLabel")
-    if not label or label.Text == "Empty Base" then return nil end
-    return label.Text:gsub("'s [Bb]ase$", ""):gsub("%s+$", "")
-end
-
-local function isMyBaseAnimalPrime(animalData)
-    if not animalData or not animalData.plot then return false end
-    local plot = primePlots:FindFirstChild(animalData.plot)
-    if not plot then return false end
-    return getPlotOwnerPrime(plot) == LP.DisplayName
-end
-
-local function findPromptForAnimal(animalData)
-    if not animalData then return nil end
-    local cached = PromptMemoryCache[animalData.uid]
-    if cached and cached.Parent then return cached end
-
-    local plot = workspace.Plots:FindFirstChild(animalData.plot)
-    if not plot then return nil end
-    local podiums = plot:FindFirstChild("AnimalPodiums")
-    if not podiums then return nil end
-    local podium = podiums:FindFirstChild(animalData.slot)
-    if not podium then return nil end
-    local base = podium:FindFirstChild("Base")
-    if not base then return nil end
-    local spawn = base:FindFirstChild("Spawn")
-    if not spawn then return nil end
-    local attach = spawn:FindFirstChild("PromptAttachment")
-    if not attach then return nil end
-
-    for _, p in ipairs(attach:GetChildren()) do
-        if p:IsA("ProximityPrompt") then
-            PromptMemoryCache[animalData.uid] = p
-            return p
-        end
-    end
-    return nil
-end
-
-local function getAnimalPos(animalData)
-    local plot = workspace.Plots:FindFirstChild(animalData.plot)
-    if not plot then return nil end
-    local podiums = plot:FindFirstChild("AnimalPodiums")
-    if not podiums then return nil end
-    local podium = podiums:FindFirstChild(animalData.slot)
-    if not podium then return nil end
-    return podium:GetPivot().Position
-end
-
-local function pickClosestAnimal()
-    local char = LP.Character
-    if not char then return nil end
-    local hrp = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("UpperTorso")
-    if not hrp then return nil end
-
-    local best, bestDist = nil, math.huge
-    for _, animalData in ipairs(allAnimalsCache) do
-        if isMyBaseAnimalPrime(animalData) then continue end
-        local pos = getAnimalPos(animalData)
-        if not pos then continue end
-        local dist = (hrp.Position - pos).Magnitude
-        if dist > primeConfig.PRIME_RANGE then continue end
-        if dist < bestDist then
-            bestDist = dist
-            best = animalData
-        end
-    end
-    return best
-end
-
-local function buildPrimeCallbacks(prompt)
-    if InternalStealCache[prompt] then return end
-    local data = { holdCallbacks = {}, triggerCallbacks = {}, ready = true }
-
-    local ok1, conns1 = pcall(getconnections, prompt.PromptButtonHoldBegan)
-    if ok1 and type(conns1) == "table" then
-        for _, conn in ipairs(conns1) do
-            if type(conn.Function) == "function" then
-                table.insert(data.holdCallbacks, conn.Function)
-            end
-        end
-    end
-
-    local ok2, conns2 = pcall(getconnections, prompt.Triggered)
-    if ok2 and type(conns2) == "table" then
-        for _, conn in ipairs(conns2) do
-            if type(conn.Function) == "function" then
-                table.insert(data.triggerCallbacks, conn.Function)
-            end
-        end
-    end
-    InternalStealCache[prompt] = data
-end
-
-local function executePrimeSteal(prompt, animalData)
-    local data = InternalStealCache[prompt]
-    if not data or not data.ready then return end
-    data.ready = false
-
-    task.spawn(function()
-        for _, fn in ipairs(data.holdCallbacks) do task.spawn(fn) end
-
-        local holdStart = tick()
-        while tick() - holdStart < primeConfig.HOLD_MIN do
-            local p = math.clamp((tick() - holdStart) / primeConfig.HOLD_MAX, 0, 1)
-            if S.progressFill then S.progressFill.Size = UDim2.new(p, 0, 1, 0) end
-            if S.progressPct then S.progressPct.Text = math.floor(p * 100) .. "%" end
-            task.wait()
-        end
-
-        local fired = false
-        for _ = 1, 30 do
-            if not prompt.Parent then break end
-            local char = LP.Character
-            if not char then break end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if hrp and getAnimalPos(animalData) then
-                if (hrp.Position - getAnimalPos(animalData)).Magnitude <= primeConfig.STEAL_RANGE then
-                    task.wait(primeConfig.ENTRY_DELAY)
-                    for _, fn in ipairs(data.triggerCallbacks) do task.spawn(fn) end
-                    fired = true
-                    break
-                end
-            end
-            task.wait()
-        end
-
-        if S.progressFill then S.progressFill.Size = UDim2.new(0, 0, 1, 0) end
-        if S.progressPct then S.progressPct.Text = "0%" end
-        task.wait(primeConfig.COOLDOWN)
-        data.ready = true
-    end)
-end
-
-local function startPrimeAutoSteal()
-    if primeStealConnection then return end
-    primeStealConnection = RunService.Heartbeat:Connect(function()
-        if not S.stealActive then return end
-        local target = pickClosestAnimal()
-        if not target then return end
-        local prompt = PromptMemoryCache[target.uid] or findPromptForAnimal(target)
-        if prompt then
-            buildPrimeCallbacks(prompt)
-            if InternalStealCache[prompt] and InternalStealCache[prompt].ready then
-                executePrimeSteal(prompt, target)
-            end
-        end
-    end)
-end
-
-local function stopPrimeAutoSteal()
-    if primeStealConnection then primeStealConnection:Disconnect(); primeStealConnection = nil end
-end
-
-local function scanAllPlotsPrime()
-    local newCache = {}
-    for _, plot in ipairs(primePlots:GetChildren()) do
-        local cache = plotAnimalSync.caches[plot.Name]
-        if not cache then continue end
-        local animalList = cache.AnimalList
-        if typeof(animalList) ~= "table" then continue end
-        for slot, animalData in pairs(animalList) do
-            if type(animalData) == "table" then
-                local animalName = animalData.Index
-                local animalInfo = primeAnimalsData[animalName]
-                if not animalInfo then continue end
-                table.insert(newCache, {
-                    name = animalInfo.DisplayName or animalName,
-                    plot = plot.Name,
-                    slot = tostring(slot),
-                    uid = plot.Name .. "_" .. tostring(slot),
-                })
-            end
-        end
-    end
-    allAnimalsCache = newCache
-end
-
-scanAllPlotsPrime()
-task.spawn(function() while task.wait(5) do scanAllPlotsPrime() end end)
-
--- Sobrescribir funciones originales
-local oldStartAutoSteal = startAutoSteal
-local oldStopAutoSteal = stopAutoSteal
-startAutoSteal = startPrimeAutoSteal
-stopAutoSteal = stopPrimeAutoSteal
--- ============================================================
 -- SCRIPT PRINCIPAL NINO HUB
 -- ============================================================
 local S = {
     -- VALORES DE VELOCIDAD
-    NS = 60,
-    CS = 30,
-    LS = 10.1,
-    LS2 = 10,
+    NS = 60,      -- Velocidad Normal
+    CS = 30,      -- Velocidad Carry Mode  
+    LS = 10.1,    -- Velocidad Lagger 1
+    LS2 = 10,     -- Velocidad Lagger 2
     
     -- ESTADOS
-    speedMode = false,
-    laggerMode = 0,
+    speedMode = false,    -- Carry Mode activado?
+    laggerMode = 0,       -- 0=OFF, 1=Modo1(10.1), 2=Modo2(10)
     
     antiRagdollEnabled = false, 
     medusaCounterEnabled = false,
@@ -1063,7 +483,6 @@ local S = {
     mainMenuFrame = nil, miniToggleButton = nil, floatingPanelFrame = nil, floatingPanelGui = nil,
     bypassToggleFrame = nil,
     _noclipTimer = 0, _fpsCount = 0, _lastFpsTime = tick(), currentFPS = 0,
-    alConn = nil, arConn = nil, alPhase = 1, arPhase = 1,
     progressFill = nil, progressPct = nil, progressBarFrame = nil, topBarHUD = nil,
     stealActive = false,
     setLaggerVisual = nil, speedClk = nil, setFpsVisual = nil, setInfJumpVisual = nil,
@@ -1120,13 +539,13 @@ local S = {
 -- FUNCIÓN PARA OBTENER VELOCIDAD ACTIVA
 function S.getActiveSpeed()
     if S.laggerMode == 1 then 
-        return S.LS
+        return S.LS      -- 10.1
     elseif S.laggerMode == 2 then 
-        return S.LS2
+        return S.LS2     -- 10
     elseif S.speedMode then 
-        return S.CS
+        return S.CS      -- 30
     else 
-        return S.NS
+        return S.NS      -- 60
     end
 end
 
@@ -1416,8 +835,7 @@ end
 -- AUTO TP DOWN
 local function startAutoTpDown()
     if S.autoTpDownConn then S.autoTpDownConn:Disconnect() end
-    S.autoTpDownTimer = 0
-    S.autoTpDownConn = RunService.Heartbeat:Connect(function(dt)
+    S.autoTpDownTimer = 0    S.autoTpDownConn = RunService.Heartbeat:Connect(function(dt)
         S.autoTpDownTimer = S.autoTpDownTimer + dt
         if S.autoTpDownTimer < 0.05 then return end
         S.autoTpDownTimer = 0
@@ -1860,7 +1278,175 @@ local function stopUnwalk()
     end
 end
 
--- MEDUSA COUNTER
+-- ============================================================
+-- AUTO LEFT / RIGHT CON ATR AUTO PLAY (WAYPOINTS)
+-- ============================================================
+
+-- Waypoints
+local leftWaypoints = {
+    Vector3.new(-476.85, -6.59, 94.91),
+    Vector3.new(-485.55, -4.53, 100.61),
+    Vector3.new(-475.60, -6.59, 92.80),
+    Vector3.new(-475.26, -6.57, 21.54),
+}
+local rightWaypoints = {
+    Vector3.new(-475.77, -6.57, 26.76),
+    Vector3.new(-485.85, -4.48, 20.13),
+    Vector3.new(-475.83, -6.59, 26.54),
+    Vector3.new(-476.17, -6.09, 97.73),
+}
+
+-- Configuración de velocidades para el patrol
+local patrolConfig = { GoingSpeed = 55, StealSpeed = 29 }
+local patrolConfigFile = "SZG_AutoPlay_Speeds.json"
+
+local function loadPatrolConfig()
+    if not safeIsfile(patrolConfigFile) then return end
+    local data = safeReadfile(patrolConfigFile)
+    if data then
+        local ok, cfg = pcall(function() return HS:JSONDecode(data) end)
+        if ok and type(cfg) == "table" then
+            patrolConfig.GoingSpeed = cfg.GoingSpeed or 55
+            patrolConfig.StealSpeed = cfg.StealSpeed or 29
+        end
+    end
+end
+
+local function savePatrolConfig()
+    safeWritefile(patrolConfigFile, HS:JSONEncode(patrolConfig))
+end
+loadPatrolConfig()
+
+-- Variables de patrol
+local activePatrolConn = nil
+local activeWaypoints = nil
+local waypointIndex = 1
+local currentPhase = 1
+local patrolProxy = nil
+local proxyWeld = nil
+
+local function ensurePatrolProxy()
+    local char = LP.Character
+    if not char then return nil end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+    if not patrolProxy or patrolProxy.Parent ~= char then
+        if patrolProxy then patrolProxy:Destroy() end
+        patrolProxy = Instance.new("Part")
+        patrolProxy.Name = "Atr_AutoPlayProxy"
+        patrolProxy.Size = Vector3.new(1,1,1)
+        patrolProxy.Transparency = 1
+        patrolProxy.CanCollide = false
+        patrolProxy.Massless = true
+        patrolProxy.Parent = char
+        if proxyWeld then proxyWeld:Destroy() end
+        proxyWeld = Instance.new("Weld")
+        proxyWeld.Part0 = hrp
+        proxyWeld.Part1 = patrolProxy
+        proxyWeld.C0 = CFrame.new(0,0,0)
+        proxyWeld.Parent = patrolProxy
+    end
+    return patrolProxy
+end
+
+local function moveToTarget(target, speed)
+    local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local dir = (target - hrp.Position)
+    local moveDir = Vector3.new(dir.X, 0, dir.Z).Unit
+    local hum = LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum:Move(moveDir, false) end
+    if patrolProxy then
+        local currentVel = patrolProxy.AssemblyLinearVelocity
+        patrolProxy.AssemblyLinearVelocity = Vector3.new(moveDir.X * speed, currentVel.Y, moveDir.Z * speed)
+    end
+end
+
+local function stopPatrolMovement()
+    if patrolProxy then patrolProxy.AssemblyLinearVelocity = Vector3.new(0,0,0) end
+    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum:Move(Vector3.zero, false) end
+end
+
+local function startPatrol(waypoints)
+    if activePatrolConn then activePatrolConn:Disconnect() end
+    activeWaypoints = waypoints
+    waypointIndex = 1
+    currentPhase = 1
+    ensurePatrolProxy()
+    activePatrolConn = RunService.Stepped:Connect(function()
+        if not activeWaypoints then return end
+        local char = LP.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        local target = activeWaypoints[waypointIndex]
+        if not target then return end
+        
+        local dist = (target - hrp.Position).Magnitude
+        local speed = (currentPhase <= 2) and patrolConfig.GoingSpeed or patrolConfig.StealSpeed
+        if dist < 2.5 then
+            waypointIndex = waypointIndex + 1
+            if waypointIndex > #activeWaypoints then
+                -- Ruta completada
+                if activePatrolConn then activePatrolConn:Disconnect(); activePatrolConn = nil end
+                activeWaypoints = nil
+                if S.autoLeftEnabled then
+                    S.autoLeftEnabled = false
+                    if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end
+                elseif S.autoRightEnabled then
+                    S.autoRightEnabled = false
+                    if S.autoRightSetVisual then S.autoRightSetVisual(false) end
+                end
+                if S._setPButtonActive then
+                    if S._btnAAL then S._setPButtonActive(S._btnAAL, S._bsAAL, S._l1AAL, S._l2AAL, false) end
+                    if S._btnAAR then S._setPButtonActive(S._btnAAR, S._bsAAR, S._l1AAR, S._l2AAR, false) end
+                end
+                stopPatrolMovement()
+                return
+            end
+            if waypointIndex == 3 then
+                currentPhase = 3
+            end
+        else
+            moveToTarget(target, speed)
+        end
+    end)
+end
+
+local function stopPatrol()
+    if activePatrolConn then activePatrolConn:Disconnect(); activePatrolConn = nil end
+    activeWaypoints = nil
+    waypointIndex = 1
+    stopPatrolMovement()
+end
+
+-- Funciones de AutoLeft y AutoRight actualizadas
+function startAutoLeft()
+    if S.autoLeftEnabled then return end
+    S.autoLeftEnabled = true
+    startPatrol(leftWaypoints)
+end
+
+function stopAutoLeft()
+    if not S.autoLeftEnabled then return end
+    S.autoLeftEnabled = false
+    stopPatrol()
+end
+
+function startAutoRight()
+    if S.autoRightEnabled then return end
+    S.autoRightEnabled = true
+    startPatrol(rightWaypoints)
+end
+
+function stopAutoRight()
+    if not S.autoRightEnabled then return end
+    S.autoRightEnabled = false
+    stopPatrol()
+end
+
+-- Medusa Counter
 local function findMedusa()
     local char = LP.Character
     if not char then return nil end
@@ -2016,6 +1602,110 @@ local function runTPFloor()
     end)
 end
 
+-- AUTO STEAL
+local getconnections = getconnections or get_signal_cons or getconnects or (syn and syn.get_signal_cons)
+
+local function isMyPlotByName(pn)
+    local ct = tick()
+    if S.Steal.plotCache[pn] and (ct - (S.Steal.plotCacheTime[pn] or 0)) < 2 then return S.Steal.plotCache[pn] end
+    local plots = workspace:FindFirstChild("Plots"); if not plots then S.Steal.plotCache[pn]=false; S.Steal.plotCacheTime[pn]=ct; return false end
+    local plot = plots:FindFirstChild(pn); if not plot then S.Steal.plotCache[pn]=false; S.Steal.plotCacheTime[pn]=ct; return false end
+    local sign = plot:FindFirstChild("PlotSign")
+    if sign then local yb = sign:FindFirstChild("YourBase"); if yb and yb:IsA("BillboardGui") then local r = yb.Enabled==true; S.Steal.plotCache[pn]=r; S.Steal.plotCacheTime[pn]=ct; return r end end
+    S.Steal.plotCache[pn]=false; S.Steal.plotCacheTime[pn]=ct; return false
+end
+
+local function findNearestPrompt()
+    local c = LP.Character; if not c then return nil end
+    local root = c:FindFirstChild("HumanoidRootPart"); if not root then return nil end
+    local ct = tick()
+    if ct - S.Steal.promptCacheTime < 0.08 and #S.Steal.cachedPrompts > 0 then
+        local np, nd = nil, math.huge
+        for _, data in ipairs(S.Steal.cachedPrompts) do
+            if data.spawn then local dist = (data.spawn.Position - root.Position).Magnitude; if dist <= S.Steal.StealRadius and dist < nd then np = data.prompt; nd = dist end end
+        end
+        if np then return np end
+    end
+    S.Steal.cachedPrompts = {}; S.Steal.promptCacheTime = ct
+    local plots = workspace:FindFirstChild("Plots"); if not plots then return nil end
+    local np, nd = nil, math.huge
+    for _, plot in ipairs(plots:GetChildren()) do
+        if isMyPlotByName(plot.Name) then continue end
+        local pods = plot:FindFirstChild("AnimalPodiums"); if not pods then continue end
+        for _, pod in ipairs(pods:GetChildren()) do
+            pcall(function()
+                local base = pod:FindFirstChild("Base"); local sp = base and base:FindFirstChild("Spawn")
+                if sp then local att = sp:FindFirstChild("PromptAttachment"); if att then
+                    for _, child in ipairs(att:GetChildren()) do
+                        if child:IsA("ProximityPrompt") then
+                            local dist = (sp.Position - root.Position).Magnitude
+                            table.insert(S.Steal.cachedPrompts, {prompt=child, spawn=sp})
+                            if dist <= S.Steal.StealRadius and dist < nd then np=child; nd=dist end
+                            break
+                        end
+                    end
+                end end
+            end)
+        end
+    end
+    return np
+end
+
+local function executeSteal(prompt)
+    local ct = tick()
+    if S.Steal.isStealing then return end
+    if not S.Steal.Data[prompt] then
+        S.Steal.Data[prompt] = {hold={}, trigger={}, ready=true}
+        pcall(function()
+            if getconnections then
+                for _, c2 in ipairs(getconnections(prompt.PromptButtonHoldBegan)) do if c2.Function then table.insert(S.Steal.Data[prompt].hold, c2.Function) end end
+                for _, c2 in ipairs(getconnections(prompt.Triggered)) do if c2.Function then table.insert(S.Steal.Data[prompt].trigger, c2.Function) end end
+            else S.Steal.Data[prompt].useFallback = true end
+        end)
+        if #S.Steal.Data[prompt].hold == 0 and #S.Steal.Data[prompt].trigger == 0 then S.Steal.Data[prompt].useFallback = true end
+    end
+    local data = S.Steal.Data[prompt]; if not data.ready then return end
+    data.ready = false; S.Steal.isStealing = true; S.Steal.stealStartTime = ct
+    if S.Conns.progress then S.Conns.progress:Disconnect() end
+    S.Conns.progress = RunService.Heartbeat:Connect(function()
+        if not S.Steal.isStealing then S.Conns.progress:Disconnect(); return end
+        local prog = math.clamp((tick() - S.Steal.stealStartTime) / S.Steal.StealDuration, 0, 1)
+        if S.progressFill then S.progressFill.Size = UDim2.new(prog, 0, 1, 0) end
+        if S.progressPct then S.progressPct.Text = math.floor(prog * 100) .. "%" end
+    end)
+    task.spawn(function()
+        local ok = false
+        pcall(function() if not data.useFallback then for _, fn in ipairs(data.hold) do task.spawn(fn) end; task.wait(S.Steal.StealDuration); for _, fn in ipairs(data.trigger) do task.spawn(fn) end; ok=true end end)
+        if not ok and fireproximityprompt then pcall(function() fireproximityprompt(prompt); ok=true end) end
+        if not ok then pcall(function() prompt:InputHoldBegin(); task.wait(S.Steal.StealDuration); prompt:InputHoldEnd() end) end
+        if S.Conns.progress then S.Conns.progress:Disconnect() end
+        if S.progressPct then S.progressPct.Text = "0%" end
+        if S.progressFill then S.progressFill.Size = UDim2.new(0,0,1,0) end
+        data.ready = true
+        S.Steal.isStealing = false
+    end)
+end
+
+local function startAutoSteal()
+    if S.stealConn then S.stealConn:Disconnect() end
+    local _stealTimer = 0
+    S.stealConn = RunService.Heartbeat:Connect(function(dt)
+        if not S.stealActive or S.Steal.isStealing then return end
+        _stealTimer = _stealTimer + dt
+        if _stealTimer < 0.02 then return end
+        _stealTimer = 0
+        local p = findNearestPrompt(); if p then executeSteal(p) end
+    end)
+end
+
+local function stopAutoSteal()
+    if S.stealConn then S.stealConn:Disconnect(); S.stealConn = nil end
+    S.Steal.isStealing = false
+    S.Steal.plotCache = {}; S.Steal.plotCacheTime = {}; S.Steal.cachedPrompts = {}
+    if S.progressPct then S.progressPct.Text = "0%" end
+    if S.progressFill then S.progressFill.Size = UDim2.new(0,0,1,0) end
+end
+
 -- NOCLIP
 local _noclipCache = {}
 RunService.Stepped:Connect(function(_, dt)
@@ -2087,7 +1777,8 @@ saveConfig = function()
             floatingPanelPos = S.floatingPanelFrame and {X = S.floatingPanelFrame.Position.X.Offset, Y = S.floatingPanelFrame.Position.Y.Offset} or nil,
             bypassAimbotEnabled = bypassState.enabled,
             ninoTimeEnabled = S.ninoTimeEnabled,
-            speedBypassEnabled = speedBypassEnabled,
+            patrolGoingSpeed = patrolConfig.GoingSpeed,
+            patrolStealSpeed = patrolConfig.StealSpeed,
         }
         local ok, data = pcall(function() return HS:JSONEncode(cfg) end)
         if ok and data then safeWritefile(S.CONFIG_FILE, data) end
@@ -2575,6 +2266,14 @@ local function buildMainTab(pages)
 end
 
 local function buildMoveTab(pages)
+    -- Velocidades del patrol (Going y Steal)
+    mkInput("Move", pages, "Going Speed (Auto)", patrolConfig.GoingSpeed, function(v)
+        if v >= 10 and v <= 200 then patrolConfig.GoingSpeed = v; savePatrolConfig(); saveConfig() end
+    end)
+    mkInput("Move", pages, "Steal Speed (Auto)", patrolConfig.StealSpeed, function(v)
+        if v >= 10 and v <= 200 then patrolConfig.StealSpeed = v; savePatrolConfig(); saveConfig() end
+    end)
+
     local batToggleVisual, _ = mkToggle("Move", pages, "Bat Aimbot", S.KB.AutoBat.kb, false, function(on)
         if on then
             if S.autoLeftEnabled then
@@ -2604,10 +2303,10 @@ local function buildMoveTab(pages)
     end, nil)
 
     local setALVis, _ = mkToggle("Move", pages, "Auto Left", S.KB.AutoLeft.kb, false, function(on)
-        S.autoLeftEnabled = on
         if on then
             if S.autoRightEnabled then
-                S.autoRightEnabled = false; stopAutoRight()
+                S.autoRightEnabled = false
+                stopAutoRight()
                 if S.autoRightSetVisual then S.autoRightSetVisual(false) end
             end
             if S.batAimbotEnabled then setBatAimbot(false) end
@@ -2616,7 +2315,9 @@ local function buildMoveTab(pages)
             stopAutoLeft()
         end
         if S.autoLeftSetVisual then S.autoLeftSetVisual(on) end
-        S.restartMovement(); updateFloatingButtons(); saveConfig()
+        S.restartMovement()
+        updateFloatingButtons()
+        saveConfig()
     end, function(k, isGp)
         if isGp then S.KB.AutoLeft.gp = k; S.KB.AutoLeft.kb = nil
         else S.KB.AutoLeft.kb = k; S.KB.AutoLeft.gp = nil end
@@ -2625,10 +2326,10 @@ local function buildMoveTab(pages)
     S.autoLeftSetVisual = setALVis
 
     local setARVis, _ = mkToggle("Move", pages, "Auto Right", S.KB.AutoRight.kb, false, function(on)
-        S.autoRightEnabled = on
         if on then
             if S.autoLeftEnabled then
-                S.autoLeftEnabled = false; stopAutoLeft()
+                S.autoLeftEnabled = false
+                stopAutoLeft()
                 if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end
             end
             if S.batAimbotEnabled then setBatAimbot(false) end
@@ -2637,7 +2338,9 @@ local function buildMoveTab(pages)
             stopAutoRight()
         end
         if S.autoRightSetVisual then S.autoRightSetVisual(on) end
-        S.restartMovement(); updateFloatingButtons(); saveConfig()
+        S.restartMovement()
+        updateFloatingButtons()
+        saveConfig()
     end, function(k, isGp)
         if isGp then S.KB.AutoRight.gp = k; S.KB.AutoRight.kb = nil
         else S.KB.AutoRight.kb = k; S.KB.AutoRight.gp = nil end
@@ -3205,23 +2908,39 @@ local function buildGui()
         elseif match(S.KB.TPFlor) then
             runTPFloor()
         elseif match(S.KB.AutoLeft) then
-            S.autoLeftEnabled = not S.autoLeftEnabled
-            if S.autoLeftEnabled then
-                if S.autoRightEnabled then S.autoRightEnabled = false; stopAutoRight(); if S.autoRightSetVisual then S.autoRightSetVisual(false) end end
+            local newState = not S.autoLeftEnabled
+            if newState then
+                if S.autoRightEnabled then
+                    S.autoRightEnabled = false
+                    stopAutoRight()
+                    if S.autoRightSetVisual then S.autoRightSetVisual(false) end
+                end
                 if S.batAimbotEnabled then setBatAimbot(false) end
                 startAutoLeft()
-            else stopAutoLeft() end
-            if S.autoLeftSetVisual then S.autoLeftSetVisual(S.autoLeftEnabled) end
-            S.restartMovement(); updateFloatingButtons(); saveConfig()
+            else
+                stopAutoLeft()
+            end
+            if S.autoLeftSetVisual then S.autoLeftSetVisual(newState) end
+            S.restartMovement()
+            updateFloatingButtons()
+            saveConfig()
         elseif match(S.KB.AutoRight) then
-            S.autoRightEnabled = not S.autoRightEnabled
-            if S.autoRightEnabled then
-                if S.autoLeftEnabled then S.autoLeftEnabled = false; stopAutoLeft(); if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end end
+            local newState = not S.autoRightEnabled
+            if newState then
+                if S.autoLeftEnabled then
+                    S.autoLeftEnabled = false
+                    stopAutoLeft()
+                    if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end
+                end
                 if S.batAimbotEnabled then setBatAimbot(false) end
                 startAutoRight()
-            else stopAutoRight() end
-            if S.autoRightSetVisual then S.autoRightSetVisual(S.autoRightEnabled) end
-            S.restartMovement(); updateFloatingButtons(); saveConfig()
+            else
+                stopAutoRight()
+            end
+            if S.autoRightSetVisual then S.autoRightSetVisual(newState) end
+            S.restartMovement()
+            updateFloatingButtons()
+            saveConfig()
         elseif match(S.KB.AutoBat) then
             local newState = not S.batAimbotEnabled
             if newState then
@@ -3241,8 +2960,7 @@ local function buildGui()
             if main.Visible then
                 main.Visible = false
                 if S.miniToggleButton then S.miniToggleButton.Visible = true end
-            else
-                showGui()
+            else                showGui()
             end
         elseif match(S.KB.SpeedToggle) then
             if S.laggerMode ~= 0 then
@@ -3268,9 +2986,6 @@ local function buildGui()
             if S.autoTpDownSetVisual then S.autoTpDownSetVisual(S.autoTpDownEnabled) end
             if S.autoTpDownFloatVisual then S.autoTpDownFloatVisual(S.autoTpDownEnabled) end
             saveConfig()
-        elseif kc == Enum.KeyCode.V then
-            onSpeedBypassToggle()
-            applySpeedBypassOptimizations()
         end
     end)
 
@@ -3377,7 +3092,6 @@ local function createFloatingButtonPanel()
     local btnCS, bsCS, l1CS, l2CS = makePButton("CARRY", "SPD", 6)
     local btnLAG, bsLAG, l1LAG, l2LAG = makePButton("LAGGER", "MODE", 7)
     local btnATD, bsATD, l1ATD, l2ATD = makePButton("AUTO TP", "DOWN", 8)
-    local btnSPD, bsSPD, l1SPD, l2SPD = makePButton("SPEED", "BYPASS", 9)
 
     S._btnAAL = btnAL; S._bsAAL = bsAL; S._l1AAL = l1AL; S._l2AAL = l2AL
     S._btnAAR = btnAR; S._bsAAR = bsAR; S._l1AAR = l1AR; S._l2AAR = l2AR
@@ -3390,18 +3104,7 @@ local function createFloatingButtonPanel()
         autoRight = btnAR, strokeAutoRight = bsAR, l1AutoRight = l1AR, l2AutoRight = l2AR,
         bat = btnBAT, strokeBat = bsBAT, l1Bat = l1BAT, l2Bat = l2BAT,
         autoTPDown = btnATD, strokeAutoTPDown = bsATD, l1AutoTPDown = l1ATD, l2AutoTPDown = l2ATD,
-        speedBypass = {btn = btnSPD, stroke = bsSPD, l1 = l1SPD, l2 = l2SPD},
     }
-
-    -- Speed Bypass button logic
-    updateSpeedBypassButton = function(state)
-        setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, state)
-    end
-    
-    btnSPD.MouseButton1Click:Connect(function()
-        onSpeedBypassToggle()
-        applySpeedBypassOptimizations()
-    end)
 
     l1LAG.Text = "LAGGER"
     l2LAG.Text = (S.laggerMode == 1 and "1") or "2"
@@ -3411,7 +3114,6 @@ local function createFloatingButtonPanel()
     setButtonActive(btnAR, bsAR, l1AR, l2AR, S.autoRightEnabled)
     setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, S.batAimbotEnabled)
     setButtonActive(btnATD, bsATD, l1ATD, l2ATD, S.autoTpDownEnabled)
-    setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, speedBypassEnabled)
 
     S.autoTpDownFloatVisual = function(state)
         setButtonActive(btnATD, bsATD, l1ATD, l2ATD, state)
@@ -3452,9 +3154,9 @@ local function createFloatingButtonPanel()
                 setButtonActive(btnAR, bsAR, l1AR, l2AR, false)
             end
             if S.batAimbotEnabled then setBatAimbot(false); setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, false) end
-            S.autoLeftEnabled = true; startAutoLeft()
+            startAutoLeft()
         else
-            S.autoLeftEnabled = false; stopAutoLeft()
+            stopAutoLeft()
         end
         if S.autoLeftSetVisual then S.autoLeftSetVisual(newState) end
         setButtonActive(btnAL, bsAL, l1AL, l2AL, newState)
@@ -3469,9 +3171,9 @@ local function createFloatingButtonPanel()
                 setButtonActive(btnAL, bsAL, l1AL, l2AL, false)
             end
             if S.batAimbotEnabled then setBatAimbot(false); setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, false) end
-            S.autoRightEnabled = true; startAutoRight()
+            startAutoRight()
         else
-            S.autoRightEnabled = false; stopAutoRight()
+            stopAutoRight()
         end
         if S.autoRightSetVisual then S.autoRightSetVisual(newState) end
         setButtonActive(btnAR, bsAR, l1AR, l2AR, newState)
@@ -3614,11 +3316,8 @@ local function loadConfig()
     if cfg.laggerMode then S.laggerMode = cfg.laggerMode end
     if cfg.hudScale then S.hudScale = cfg.hudScale; updateHudScale() end
     if cfg.batAimbotSpeed then S.batAimbotSpeed = cfg.batAimbotSpeed end
-    if cfg.speedBypassEnabled then
-        speedBypassEnabled = cfg.speedBypassEnabled
-        if updateSpeedBypassButton then updateSpeedBypassButton(speedBypassEnabled) end
-        if speedBypassEnabled then applySpeedBypassOptimizations() end
-    end
+    if cfg.patrolGoingSpeed then patrolConfig.GoingSpeed = cfg.patrolGoingSpeed end
+    if cfg.patrolStealSpeed then patrolConfig.StealSpeed = cfg.patrolStealSpeed end
 
     if S.laggerMode == 0 then S.laggerMode = 1 end
 
@@ -3689,6 +3388,19 @@ local function loadConfig()
         bypassPanelFrame.Position = UDim2.new(1, x, 0.5, y)
     end
 
+    if cfg.autoLeftEnabled then
+        S.autoLeftEnabled = true
+        startAutoLeft()
+        if S.autoLeftSetVisual then S.autoLeftSetVisual(true) end
+        if S._btnAAL then S._setPButtonActive(S._btnAAL, S._bsAAL, S._l1AAL, S._l2AAL, true) end
+    end
+    if cfg.autoRightEnabled then
+        S.autoRightEnabled = true
+        startAutoRight()
+        if S.autoRightSetVisual then S.autoRightSetVisual(true) end
+        if S._btnAAR then S._setPButtonActive(S._btnAAR, S._bsAAR, S._l1AAR, S._l2AAR, true) end
+    end
+
     local fb = S._floatingButtons
     if fb.lagger then updateLaggerButtonVisual() end
 
@@ -3713,7 +3425,8 @@ task.spawn(function()
     if galaxyOn then updateGalaxy() end
     if bypassState.enabled then startBypassAimbot() end
     if S.ninoTimeEnabled then startNinoTime() end
-    if speedBypassEnabled then applySpeedBypassOptimizations() end
+    if S.autoLeftEnabled then startAutoLeft() end
+    if S.autoRightEnabled then startAutoRight() end
 end)
 
 if LP.Character then task.wait(0.3); S.setupSpeedBillboard(LP.Character) end
@@ -3751,7 +3464,6 @@ LP.CharacterAdded:Connect(function(char)
         setupStunDetection(char)
         createStunTimerBillboard()
     end
-    if speedBypassEnabled then applySpeedBypassOptimizations() end
 end)
 
 if LP.Character then
@@ -3783,11 +3495,5 @@ if LP.Character then
             setupStunDetection(char)
             createStunTimerBillboard()
         end
-        if speedBypassEnabled then applySpeedBypassOptimizations() end
     end)
 end
-
-print("✅ NINO HUB COMPLETO - CARGADO")
-print("   - Auto Left/Right con waypoints (Atr auto play)")
-print("   - Auto Steal sincronizado (AUTOGRABPRIME)")
-print("   - Speed Bypass activado (tecla V)")
