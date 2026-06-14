@@ -244,6 +244,204 @@ local Lighting = game:GetService("Lighting")
 local HS = game:GetService("HttpService")
 local LP = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+-- ============================================================
+-- SPEED BYPASS (NITHER)
+-- ============================================================
+local speedBypassEnabled = false
+local speedBypassToggleKey = Enum.KeyCode.V
+local speedBypassListening = false
+local speedBypassAmount = 31.25
+local lagAmount = 0.0112
+
+-- Optimización visual del speed bypass
+local antiLagDescConn = nil
+local origEffects = {}
+local origWorkspace = {}
+local origSaved = false
+
+local cfg = LP.PlayerGui:FindFirstChild("_NitherCfg")
+if not cfg then
+    cfg = Instance.new("Folder")
+    cfg.Name = "_NitherCfg"
+    cfg.Parent = LP.PlayerGui
+end
+
+local function cfgGet(name, default)
+    local v = cfg:FindFirstChild(name)
+    return v and v.Value or default
+end
+
+local function cfgSet(name, value, class)
+    local v = cfg:FindFirstChild(name)
+    if not v then
+        v = Instance.new(class or "BoolValue")
+        v.Name = name
+        v.Parent = cfg
+    end
+    v.Value = value
+end
+
+if not cfg:FindFirstChild("_OrigSaved") then
+    cfgSet("_OrigSaved", true, "BoolValue")
+    cfgSet("OrigGlobalShadows", Lighting.GlobalShadows, "BoolValue")
+    cfgSet("OrigFogEnd", Lighting.FogEnd, "NumberValue")
+    cfgSet("OrigBrightness", Lighting.Brightness, "NumberValue")
+    cfgSet("OrigEnvDiffuse", Lighting.EnvironmentDiffuseScale, "NumberValue")
+    cfgSet("OrigEnvSpecular", Lighting.EnvironmentSpecularScale, "NumberValue")
+end
+
+for _, e in pairs(Lighting:GetChildren()) do
+    if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect")
+    or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+        origEffects[e] = e.Enabled
+    end
+end
+
+local function saveWorkspaceState()
+    if origSaved then return end
+    origSaved = true
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") then
+            origWorkspace[obj] = {Enabled = obj.Enabled}
+        elseif obj:IsA("Decal") or obj:IsA("Texture") then
+            origWorkspace[obj] = {Transparency = obj.Transparency}
+        elseif obj:IsA("BasePart") then
+            origWorkspace[obj] = {
+                Material = obj.Material,
+                Reflectance = obj.Reflectance,
+                CastShadow = obj.CastShadow,
+            }
+        end
+    end
+end
+
+local function restoreWorkspaceState()
+    for obj, props in pairs(origWorkspace) do
+        if obj and obj.Parent then
+            pcall(function()
+                for k, v in pairs(props) do obj[k] = v end
+            end)
+        end
+    end
+    origWorkspace = {}
+    origSaved = false
+end
+
+local function processObj(obj)
+    if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") then
+        obj.Enabled = false
+    end
+    if obj:IsA("Decal") or obj:IsA("Texture") then
+        obj.Transparency = 1
+    end
+    if obj:IsA("BasePart") then
+        obj.Material = Enum.Material.Plastic
+        obj.Reflectance = 0
+        obj.CastShadow = false
+    end
+end
+
+local function watchPartProps(obj)
+    if not obj:IsA("BasePart") then return end
+    obj:GetPropertyChangedSignal("Material"):Connect(function()
+        if obj.Parent and obj.Material ~= Enum.Material.Plastic then
+            pcall(function() obj.Material = Enum.Material.Plastic end)
+        end
+    end)
+    obj:GetPropertyChangedSignal("Reflectance"):Connect(function()
+        if obj.Parent and obj.Reflectance ~= 0 then
+            pcall(function() obj.Reflectance = 0 end)
+        end
+    end)
+    obj:GetPropertyChangedSignal("CastShadow"):Connect(function()
+        if obj.Parent and obj.CastShadow then
+            pcall(function() obj.CastShadow = false end)
+        end
+    end)
+end
+
+local function doSpeedBypassOptimize()
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Lighting.Brightness = 1
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
+    for _, e in pairs(Lighting:GetChildren()) do
+        if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect")
+        or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+            e.Enabled = false
+        end
+    end
+    for _, obj in pairs(Workspace:GetDescendants()) do pcall(function() processObj(obj) end) end
+end
+
+local function doSpeedBypassRestore()
+    Lighting.GlobalShadows = cfgGet("OrigGlobalShadows", true)
+    Lighting.FogEnd = cfgGet("OrigFogEnd", 100000)
+    Lighting.Brightness = cfgGet("OrigBrightness", 2)
+    Lighting.EnvironmentDiffuseScale = cfgGet("OrigEnvDiffuse", 1)
+    Lighting.EnvironmentSpecularScale = cfgGet("OrigEnvSpecular", 1)
+    for e, was in pairs(origEffects) do
+        if e and e.Parent then e.Enabled = was end
+    end
+    pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic end)
+end
+
+saveWorkspaceState()
+pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
+pcall(function() doSpeedBypassOptimize() end)
+for _, obj in pairs(Workspace:GetDescendants()) do watchPartProps(obj) end
+antiLagDescConn = Workspace.DescendantAdded:Connect(function(obj)
+    task.defer(function()
+        if obj and obj.Parent then
+            pcall(function() processObj(obj) end)
+            watchPartProps(obj)
+        end
+    end)
+end)
+
+-- RenderStepped para speed bypass
+local speedBypassConn = nil
+local function startSpeedBypass()
+    if speedBypassConn then return end
+    speedBypassConn = RunService.RenderStepped:Connect(function()
+        if not speedBypassEnabled then return end
+        local char = LP.Character
+        if char then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hrp and hum and hum.MoveDirection.Magnitude > 0 then
+                hrp.Velocity = Vector3.new(
+                    hum.MoveDirection.X * speedBypassAmount,
+                    hrp.Velocity.Y,
+                    hum.MoveDirection.Z * speedBypassAmount
+                )
+            end
+        end
+        local t = tick()
+        while tick() - t < lagAmount do end
+    end)
+end
+
+local function stopSpeedBypass()
+    if speedBypassConn then
+        speedBypassConn:Disconnect()
+        speedBypassConn = nil
+    end
+end
+
+local function setSpeedBypassEnabled(state)
+    speedBypassEnabled = state
+    if state then
+        startSpeedBypass()
+        pcall(function() doSpeedBypassOptimize() end)
+    else
+        stopSpeedBypass()
+        pcall(function() doSpeedBypassRestore() end)
+    end
+end
 
 -- ============================================================
 -- NINO TIME (STUN TIMER) - TOGGLE INDEPENDIENTE
@@ -473,6 +671,7 @@ local S = {
     _btnAAL = nil, _bsAAL = nil, _l1AAL = nil, _l2AAL = nil,
     _btnAAR = nil, _bsAAR = nil, _l1AAR = nil, _l2AAR = nil,
     _btnBAT = nil, _bsBAT = nil, _l1BAT = nil, _l2BAT = nil,
+    _btnSPD = nil, _bsSPD = nil, _l1SPD = nil, _l2SPD = nil, -- Speed Bypass button
     _setPButtonActive = nil, speedCounterLabel = nil,
     batAimbotEnabled = false, batAimbotSetVisual = nil, batAimbotConn = nil,
     batAimbotSpeed = 56.5,
@@ -488,6 +687,7 @@ local S = {
     setLaggerVisual = nil, speedClk = nil, setFpsVisual = nil, setInfJumpVisual = nil,
     setAntiRagVisual = nil, setMedusaVisual = nil,
     setUnwalkVisual = nil, setDarkVisual = nil, setInstaGrab = nil,
+    setSpeedBypassVisual = nil,
     normalBox = nil, carryBox = nil, laggerBox = nil, lagger2Box = nil,
     radInput = nil, setLockUI_Visual = nil, setHideOpiumButtons = nil,
     autoTpDownEnabled = false,
@@ -519,6 +719,7 @@ local S = {
         SpeedToggle = {kb = Enum.KeyCode.Q, gp = Enum.KeyCode.DPadUp},
         LaggerToggle = {kb = Enum.KeyCode.R, gp = Enum.KeyCode.DPadDown},
         AutoTPDown = {kb = Enum.KeyCode.T, gp = nil},
+        SpeedBypass = {kb = Enum.KeyCode.V, gp = nil},
     },
     Conns = {antiRag = nil, anchor = {}, progress = nil},
     moveConn = nil, speedEnabled = true, h = nil, hrp = nil,
@@ -538,7 +739,9 @@ local S = {
 
 -- FUNCIÓN PARA OBTENER VELOCIDAD ACTIVA
 function S.getActiveSpeed()
-    if S.laggerMode == 1 then 
+    if speedBypassEnabled then
+        return speedBypassAmount
+    elseif S.laggerMode == 1 then 
         return S.LS      -- 10.1
     elseif S.laggerMode == 2 then 
         return S.LS2     -- 10
@@ -701,6 +904,7 @@ end)
 
 local DROP_ASCEND_DURATION = 0.2
 local DROP_ASCEND_SPEED = 150
+local originalPatrolGoingSpeed = nil
 
 local function runDropBrainrot()
     if S.dropBrainrotActive then return end
@@ -708,6 +912,13 @@ local function runDropBrainrot()
     if not char then return end
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
+    
+    -- Guardar velocidad original del patrol y ponerla a 30 durante el drop
+    if originalPatrolGoingSpeed == nil then
+        originalPatrolGoingSpeed = patrolConfig.GoingSpeed
+    end
+    patrolConfig.GoingSpeed = 30
+    
     S.dropBrainrotActive = true
     local startTime = tick()
     local conn
@@ -716,6 +927,11 @@ local function runDropBrainrot()
         if not r then
             conn:Disconnect()
             S.dropBrainrotActive = false
+            -- Restaurar velocidad original
+            if originalPatrolGoingSpeed then
+                patrolConfig.GoingSpeed = originalPatrolGoingSpeed
+                originalPatrolGoingSpeed = nil
+            end
             return
         end
         if tick() - startTime >= DROP_ASCEND_DURATION then
@@ -731,6 +947,11 @@ local function runDropBrainrot()
                 r.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
             end
             S.dropBrainrotActive = false
+            -- Restaurar velocidad original
+            if originalPatrolGoingSpeed then
+                patrolConfig.GoingSpeed = originalPatrolGoingSpeed
+                originalPatrolGoingSpeed = nil
+            end
             return
         end
         r.AssemblyLinearVelocity = Vector3.new(r.AssemblyLinearVelocity.X, DROP_ASCEND_SPEED, r.AssemblyLinearVelocity.Z)
@@ -742,7 +963,7 @@ S.startMovement = function()
     S.moveConn = RunService.RenderStepped:Connect(function()
         if not S.speedEnabled then return end
         if not (S.h and S.hrp) then return end
-        if S.batAimbotEnabled or S.autoLeftEnabled or S.autoRightEnabled then return end
+        if S.batAimbotEnabled or S.autoLeftEnabled or S.autoRightEnabled or speedBypassEnabled then return end
         local md = S.h.MoveDirection
         local spd = S.getActiveSpeed()
         if md.Magnitude > 0 then
@@ -835,7 +1056,8 @@ end
 -- AUTO TP DOWN
 local function startAutoTpDown()
     if S.autoTpDownConn then S.autoTpDownConn:Disconnect() end
-    S.autoTpDownTimer = 0    S.autoTpDownConn = RunService.Heartbeat:Connect(function(dt)
+    S.autoTpDownTimer = 0
+    S.autoTpDownConn = RunService.Heartbeat:Connect(function(dt)
         S.autoTpDownTimer = S.autoTpDownTimer + dt
         if S.autoTpDownTimer < 0.05 then return end
         S.autoTpDownTimer = 0
@@ -1779,6 +2001,8 @@ saveConfig = function()
             ninoTimeEnabled = S.ninoTimeEnabled,
             patrolGoingSpeed = patrolConfig.GoingSpeed,
             patrolStealSpeed = patrolConfig.StealSpeed,
+            speedBypassEnabled = speedBypassEnabled,
+            speedBypassKey = ks(S.KB.SpeedBypass),
         }
         local ok, data = pcall(function() return HS:JSONEncode(cfg) end)
         if ok and data then safeWritefile(S.CONFIG_FILE, data) end
@@ -1800,6 +2024,7 @@ updateFloatingButtons = function()
     if fb.autoLeft then S._setPButtonActive(fb.autoLeft, fb.strokeAutoLeft, fb.l1AutoLeft, fb.l2AutoLeft, S.autoLeftEnabled) end
     if fb.autoRight then S._setPButtonActive(fb.autoRight, fb.strokeAutoRight, fb.l1AutoRight, fb.l2AutoRight, S.autoRightEnabled) end
     if fb.bat then S._setPButtonActive(fb.bat, fb.strokeBat, fb.l1Bat, fb.l2Bat, S.batAimbotEnabled) end
+    if fb.speedBypass then S._setPButtonActive(fb.speedBypass, fb.strokeSpeedBypass, fb.l1SpeedBypass, fb.l2SpeedBypass, speedBypassEnabled) end
     if fb.autoTPDown then S._setPButtonActive(fb.autoTPDown, fb.strokeAutoTPDown, fb.l1AutoTPDown, fb.l2AutoTPDown, S.autoTpDownEnabled) end
 end
 
@@ -2180,10 +2405,13 @@ local function buildSpeedTab(pages)
     end)
 
     S.speedClk, _ = mkToggle("Speed", pages, "Carry Mode", S.KB.SpeedToggle.kb, false, function(on)
-        if on and S.laggerMode ~= 0 then
-            S.laggerMode = 0
-            if S.setLaggerVisual then S.setLaggerVisual(false) end
-            updateLaggerButtonVisual()
+        if on then
+            if speedBypassEnabled then setSpeedBypassEnabled(false) end
+            if S.laggerMode ~= 0 then
+                S.laggerMode = 0
+                if S.setLaggerVisual then S.setLaggerVisual(false) end
+                updateLaggerButtonVisual()
+            end
         end
         S.speedMode = on
         S.restartMovement()
@@ -2197,6 +2425,7 @@ local function buildSpeedTab(pages)
 
     S.setLaggerVisual, _ = mkToggle("Speed", pages, "Lagger Mode", S.KB.LaggerToggle.kb, false, function(on)
         if on then
+            if speedBypassEnabled then setSpeedBypassEnabled(false) end
             if S.speedMode then
                 S.speedMode = false
                 if S.speedClk then S.speedClk(false) end
@@ -2217,6 +2446,29 @@ local function buildSpeedTab(pages)
     
     mkInput("Speed", pages, "Bat Aimbot Speed", S.batAimbotSpeed, function(v)
         if v>0 and v<=500 then S.batAimbotSpeed = v; saveConfig() end
+    end)
+    
+    -- Speed Bypass toggle en la pestaña Speed
+    S.setSpeedBypassVisual, _ = mkToggle("Speed", pages, "Speed Bypass", S.KB.SpeedBypass.kb, false, function(on)
+        if on then
+            if S.speedMode then
+                S.speedMode = false
+                if S.speedClk then S.speedClk(false) end
+            end
+            if S.laggerMode ~= 0 then
+                S.laggerMode = 0
+                if S.setLaggerVisual then S.setLaggerVisual(false) end
+                updateLaggerButtonVisual()
+            end
+        end
+        setSpeedBypassEnabled(on)
+        if S.setSpeedBypassVisual then S.setSpeedBypassVisual(on) end
+        updateFloatingButtons()
+        saveConfig()
+    end, function(k, isGp)
+        if isGp then S.KB.SpeedBypass.gp = k; S.KB.SpeedBypass.kb = nil
+        else S.KB.SpeedBypass.kb = k; S.KB.SpeedBypass.gp = nil end
+        saveConfig()
     end)
 end
 
@@ -2956,11 +3208,29 @@ local function buildGui()
                 end
             end
             setBatAimbot(newState)
+        elseif match(S.KB.SpeedBypass) then
+            local newState = not speedBypassEnabled
+            if newState then
+                if S.speedMode then
+                    S.speedMode = false
+                    if S.speedClk then S.speedClk(false) end
+                end
+                if S.laggerMode ~= 0 then
+                    S.laggerMode = 0
+                    if S.setLaggerVisual then S.setLaggerVisual(false) end
+                    updateLaggerButtonVisual()
+                end
+            end
+            setSpeedBypassEnabled(newState)
+            if S.setSpeedBypassVisual then S.setSpeedBypassVisual(newState) end
+            updateFloatingButtons()
+            saveConfig()
         elseif match(S.KB.GuiHide) then
             if main.Visible then
                 main.Visible = false
                 if S.miniToggleButton then S.miniToggleButton.Visible = true end
-            else                showGui()
+            else
+                showGui()
             end
         elseif match(S.KB.SpeedToggle) then
             if S.laggerMode ~= 0 then
@@ -3091,6 +3361,7 @@ local function createFloatingButtonPanel()
     local btnTP, bsTP, l1TP, l2TP = makePButton("TP", "DOWN", 5)
     local btnCS, bsCS, l1CS, l2CS = makePButton("CARRY", "SPD", 6)
     local btnLAG, bsLAG, l1LAG, l2LAG = makePButton("LAGGER", "MODE", 7)
+    local btnSPD, bsSPD, l1SPD, l2SPD = makePButton("SPEED", "BYPASS", 9)
     local btnATD, bsATD, l1ATD, l2ATD = makePButton("AUTO TP", "DOWN", 8)
 
     S._btnAAL = btnAL; S._bsAAL = bsAL; S._l1AAL = l1AL; S._l2AAL = l2AL
@@ -3103,6 +3374,7 @@ local function createFloatingButtonPanel()
         autoLeft = btnAL, strokeAutoLeft = bsAL, l1AutoLeft = l1AL, l2AutoLeft = l2AL,
         autoRight = btnAR, strokeAutoRight = bsAR, l1AutoRight = l1AR, l2AutoRight = l2AR,
         bat = btnBAT, strokeBat = bsBAT, l1Bat = l1BAT, l2Bat = l2BAT,
+        speedBypass = btnSPD, strokeSpeedBypass = bsSPD, l1SpeedBypass = l1SPD, l2SpeedBypass = l2SPD,
         autoTPDown = btnATD, strokeAutoTPDown = bsATD, l1AutoTPDown = l1ATD, l2AutoTPDown = l2ATD,
     }
 
@@ -3113,6 +3385,7 @@ local function createFloatingButtonPanel()
     setButtonActive(btnAL, bsAL, l1AL, l2AL, S.autoLeftEnabled)
     setButtonActive(btnAR, bsAR, l1AR, l2AR, S.autoRightEnabled)
     setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, S.batAimbotEnabled)
+    setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, speedBypassEnabled)
     setButtonActive(btnATD, bsATD, l1ATD, l2ATD, S.autoTpDownEnabled)
 
     S.autoTpDownFloatVisual = function(state)
@@ -3144,6 +3417,26 @@ local function createFloatingButtonPanel()
             end
         end
         setBatAimbot(newState)
+    end)
+    btnSPD.MouseButton1Click:Connect(function()
+        local newState = not speedBypassEnabled
+        if newState then
+            if S.speedMode then
+                S.speedMode = false
+                if S.speedClk then S.speedClk(false) end
+                setButtonActive(btnCS, bsCS, l1CS, l2CS, false)
+            end
+            if S.laggerMode ~= 0 then
+                S.laggerMode = 0
+                if S.setLaggerVisual then S.setLaggerVisual(false) end
+                updateLaggerButtonVisual()
+                setButtonActive(btnLAG, bsLAG, l1LAG, l2LAG, true)
+            end
+        end
+        setSpeedBypassEnabled(newState)
+        setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, newState)
+        if S.setSpeedBypassVisual then S.setSpeedBypassVisual(newState) end
+        saveConfig()
     end)
     btnAL.MouseButton1Click:Connect(function()
         local newState = not S.autoLeftEnabled
@@ -3318,6 +3611,7 @@ local function loadConfig()
     if cfg.batAimbotSpeed then S.batAimbotSpeed = cfg.batAimbotSpeed end
     if cfg.patrolGoingSpeed then patrolConfig.GoingSpeed = cfg.patrolGoingSpeed end
     if cfg.patrolStealSpeed then patrolConfig.StealSpeed = cfg.patrolStealSpeed end
+    if cfg.speedBypassEnabled then speedBypassEnabled = cfg.speedBypassEnabled; setSpeedBypassEnabled(speedBypassEnabled) end
 
     if S.laggerMode == 0 then S.laggerMode = 1 end
 
@@ -3337,6 +3631,7 @@ local function loadConfig()
     if cfg.speedToggleKey then tryLoadKey(S.KB.SpeedToggle, cfg.speedToggleKey.kb, cfg.speedToggleKey.gp) end
     if cfg.laggerToggleKey then tryLoadKey(S.KB.LaggerToggle, cfg.laggerToggleKey.kb, cfg.laggerToggleKey.gp) end
     if cfg.autoTPDownKey then tryLoadKey(S.KB.AutoTPDown, cfg.autoTPDownKey.kb, cfg.autoTPDownKey.gp) end
+    if cfg.speedBypassKey then tryLoadKey(S.KB.SpeedBypass, cfg.speedBypassKey.kb, cfg.speedBypassKey.gp) end
 
     if cfg.grabRadius then S.Steal.StealRadius = cfg.grabRadius; if S.radInput then S.radInput.Text = tostring(cfg.grabRadius) end end
     if cfg.stealDuration then S.Steal.StealDuration = cfg.stealDuration; if S.stealDurationBox then S.stealDurationBox.Text = tostring(cfg.stealDuration) end end
@@ -3400,6 +3695,10 @@ local function loadConfig()
         if S.autoRightSetVisual then S.autoRightSetVisual(true) end
         if S._btnAAR then S._setPButtonActive(S._btnAAR, S._bsAAR, S._l1AAR, S._l2AAR, true) end
     end
+    if cfg.speedBypassEnabled then
+        if S.setSpeedBypassVisual then S.setSpeedBypassVisual(true) end
+        if S._btnSPD then S._setPButtonActive(S._btnSPD, S._bsSPD, S._l1SPD, S._l2SPD, true) end
+    end
 
     local fb = S._floatingButtons
     if fb.lagger then updateLaggerButtonVisual() end
@@ -3427,6 +3726,7 @@ task.spawn(function()
     if S.ninoTimeEnabled then startNinoTime() end
     if S.autoLeftEnabled then startAutoLeft() end
     if S.autoRightEnabled then startAutoRight() end
+    if speedBypassEnabled then setSpeedBypassEnabled(true) end
 end)
 
 if LP.Character then task.wait(0.3); S.setupSpeedBillboard(LP.Character) end
@@ -3464,6 +3764,7 @@ LP.CharacterAdded:Connect(function(char)
         setupStunDetection(char)
         createStunTimerBillboard()
     end
+    if speedBypassEnabled then setSpeedBypassEnabled(true) end
 end)
 
 if LP.Character then
@@ -3495,5 +3796,6 @@ if LP.Character then
             setupStunDetection(char)
             createStunTimerBillboard()
         end
+        if speedBypassEnabled then setSpeedBypassEnabled(true) end
     end)
 end
