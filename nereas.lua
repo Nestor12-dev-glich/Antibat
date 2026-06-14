@@ -34,65 +34,65 @@ holder.Position = UDim2.new(0.5,0,0.5,0)
 holder.Size = UDim2.new(0,700,0,140)
 holder.BackgroundTransparency = 1
 
--- SOMBRA PROFUNDA
+-- SOMBRA PROFUNDA (azul oscuro)
 local shadow = Instance.new("TextLabel")
 shadow.Parent = holder
 shadow.Size = UDim2.fromScale(1,1)
 shadow.Position = UDim2.new(0,8,0,8)
 shadow.BackgroundTransparency = 1
-shadow.Text = "NINO HUB"
+shadow.Text = "NRHUB"
 shadow.Font = Enum.Font.Antique
 shadow.TextSize = 82
 shadow.TextColor3 = Color3.fromRGB(0,0,0)
 shadow.TextTransparency = 1
 
--- CAPA INTERMEDIA (PÚRPURA)
+-- CAPA INTERMEDIA (AZUL ELÉCTRICO)
 local depth = Instance.new("TextLabel")
 depth.Parent = holder
 depth.Size = UDim2.fromScale(1,1)
 depth.Position = UDim2.new(0,4,0,4)
 depth.BackgroundTransparency = 1
-depth.Text = "NINO HUB"
+depth.Text = "NRHUB"
 depth.Font = Enum.Font.Antique
 depth.TextSize = 82
-depth.TextColor3 = Color3.fromRGB(128,0,128)
+depth.TextColor3 = Color3.fromRGB(0,150,255)
 depth.TextTransparency = 1
 
--- TEXTO PRINCIPAL (NEGRO)
+-- TEXTO PRINCIPAL (BLANCO)
 local title = Instance.new("TextLabel")
 title.Parent = holder
 title.Size = UDim2.fromScale(1,1)
 title.BackgroundTransparency = 1
-title.Text = "NINO HUB"
+title.Text = "NRHUB"
 title.Font = Enum.Font.Antique
 title.TextSize = 82
-title.TextColor3 = Color3.fromRGB(0,0,0)
+title.TextColor3 = Color3.fromRGB(255,255,255)
 title.TextTransparency = 1
 title.TextStrokeTransparency = 0
-title.TextStrokeColor3 = Color3.fromRGB(128,0,128)
+title.TextStrokeColor3 = Color3.fromRGB(0,150,255)
 
--- BORDE BRILLANTE PÚRPURA
+-- BORDE BRILLANTE CIAN
 local stroke = Instance.new("UIStroke")
 stroke.Parent = title
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(128,0,128)
+stroke.Color = Color3.fromRGB(0,200,255)
 stroke.Transparency = 0
 
--- GLOW PÚRPURA
+-- GLOW CIAN
 local glow = Instance.new("UIStroke")
 glow.Parent = title
 glow.Thickness = 10
-glow.Color = Color3.fromRGB(128,0,128)
+glow.Color = Color3.fromRGB(0,150,255)
 glow.Transparency = 0.75
 
--- GRADIENTE NEGRO A PÚRPURA
+-- GRADIENTE BLANCO A CIAN
 local grad = Instance.new("UIGradient")
 grad.Parent = title
 grad.Rotation = 90
 grad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0,0,0)),
-    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(60,0,60)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(128,0,128))
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255,255,255)),
+    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(100,200,255)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0,150,255))
 })
 
 -- DESTELLO BLANCO
@@ -247,6 +247,26 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 -- ============================================================
+-- COLORES NRHUB (azul eléctrico / cian)
+-- ============================================================
+local C_BG      = Color3.fromRGB(6,8,14)      -- Azul muy oscuro
+local C_PANEL   = Color3.fromRGB(10,14,22)    -- Panel azul profundo
+local C_ROW     = Color3.fromRGB(16,20,30)    -- Fila azul grisaceo
+local C_BORDER  = Color3.fromRGB(30,60,120)   -- Borde azul medio
+local C_BORDER2 = Color3.fromRGB(40,80,150)   -- Borde azul brillante
+local C_HEADER  = Color3.fromRGB(8,10,18)     -- Header azul oscuro
+local C_ACCENT  = Color3.fromRGB(180,220,255) -- Azul muy claro
+local C_ACCENT2 = Color3.fromRGB(80,180,255)  -- Azul eléctrico
+local C_DIM     = Color3.fromRGB(80,100,140)  -- Azul desaturado
+local C_WHITE   = Color3.fromRGB(255,255,255)
+local C_ON_BG   = Color3.fromRGB(20,60,140)   -- Azul intenso (toggle on)
+local C_OFF_BG  = Color3.fromRGB(22,28,40)    -- Azul apagado
+local C_NR      = Color3.fromRGB(0,150,255)   -- NR azul principal
+local C_CYAN    = Color3.fromRGB(0,200,255)   -- Cian eléctrico
+local C_BLUE_DARK = Color3.fromRGB(0,80,160)  -- Azul oscuro
+local C_BLUE_LIGHT = Color3.fromRGB(100,200,255) -- Azul claro
+
+-- ============================================================
 -- SPEED BYPASS (NITHER)
 -- ============================================================
 local speedBypassEnabled = false
@@ -336,17 +356,17 @@ function AB.refresh()
     if not AB.statusLbl then return end
     local on = AB.active
     AB.statusLbl.Text = on and "ENABLED" or "DISABLED"
-    AB.statusLbl.TextColor3 = on and Color3.fromRGB(80, 180, 255) or Color3.fromRGB(150, 95, 95)
+    AB.statusLbl.TextColor3 = on and C_ACCENT2 or Color3.fromRGB(150,95,95)
     if AB.pill then 
-        TweenService:Create(AB.pill, TweenInfo.new(0.2), {BackgroundColor3 = on and Color3.fromRGB(20, 60, 140) or Color3.fromRGB(22, 22, 28)}):Play() 
+        TweenService:Create(AB.pill, TweenInfo.new(0.2), {BackgroundColor3 = on and C_ON_BG or C_OFF_BG}):Play() 
     end
     if AB.pillStk then 
-        TweenService:Create(AB.pillStk, TweenInfo.new(0.2), {Color = on and Color3.fromRGB(80, 180, 255) or Color3.fromRGB(80, 28, 30)}):Play() 
+        TweenService:Create(AB.pillStk, TweenInfo.new(0.2), {Color = on and C_NR or Color3.fromRGB(80,28,30)}):Play() 
     end
     if AB.ball then 
         TweenService:Create(AB.ball, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Position = on and UDim2.new(1, -15, 0.5, -5) or UDim2.new(0, 4, 0.5, -5),
-            BackgroundColor3 = on and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(110, 80, 80)
+            Position = on and UDim2.new(1,-15,0.5,-5) or UDim2.new(0,4,0.5,-5),
+            BackgroundColor3 = on and C_WHITE or Color3.fromRGB(110,80,80)
         }):Play()
     end
 end
@@ -574,7 +594,7 @@ LP.CharacterAdded:Connect(function(char)
 end)
 
 -- ============================================================
--- GALAXY MODE
+-- GALAXY MODE (estilo NR)
 -- ============================================================
 
 local galaxyOn = false
@@ -1083,7 +1103,7 @@ S.setupSpeedBillboard = function(char)
     speedLbl.Size = UDim2.new(1,0,1,0)
     speedLbl.BackgroundTransparency = 1
     speedLbl.Text = "0"
-    speedLbl.TextColor3 = Color3.fromRGB(210,210,210)
+    speedLbl.TextColor3 = C_ACCENT2
     speedLbl.Font = Enum.Font.GothamBlack
     speedLbl.TextScaled = true
     speedLbl.TextStrokeTransparency = 0.1
@@ -1462,7 +1482,7 @@ end
 LP.CharacterAdded:Connect(setupBypassChar)
 if LP.Character then task.spawn(function() setupBypassChar(LP.Character) end) end
 
--- PANEL FLOTANTE DEL AIMBOT BYPASS
+-- PANEL FLOTANTE DEL AIMBOT BYPASS (estilo NR)
 local bypassPanelGui = Instance.new("ScreenGui")
 bypassPanelGui.Name = "NinoBypassToggle"
 bypassPanelGui.ResetOnSpawn = false
@@ -1474,13 +1494,13 @@ local bypassPanelFrame = Instance.new("Frame", bypassPanelGui)
 bypassPanelFrame.Name = "BypassToggle"
 bypassPanelFrame.Size = UDim2.new(0, 160, 0, 48)
 bypassPanelFrame.Position = UDim2.new(1, -175, 0.5, -100)
-bypassPanelFrame.BackgroundColor3 = Color3.fromRGB(4,4,6)
+bypassPanelFrame.BackgroundColor3 = C_BG
 bypassPanelFrame.BackgroundTransparency = 0
 bypassPanelFrame.BorderSizePixel = 0
 bypassPanelFrame.Active = true
 Instance.new("UICorner", bypassPanelFrame).CornerRadius = UDim.new(0,10)
 local bypassStrokeFrame = Instance.new("UIStroke", bypassPanelFrame)
-bypassStrokeFrame.Color = Color3.fromRGB(40,40,40)
+bypassStrokeFrame.Color = C_BORDER
 bypassStrokeFrame.Thickness = 1
 S.bypassToggleFrame = bypassPanelFrame
 
@@ -1524,13 +1544,13 @@ bypassBtn.BorderSizePixel = 0
 bypassBtn.Text = ""
 Instance.new("UICorner", bypassBtn).CornerRadius = UDim.new(0,8)
 local bypassBtnStroke = Instance.new("UIStroke", bypassBtn)
-bypassBtnStroke.Color = Color3.fromRGB(55,55,55)
+bypassBtnStroke.Color = C_BORDER
 bypassBtnStroke.Thickness = 1
 local bypassBtnLabel = Instance.new("TextLabel", bypassBtn)
 bypassBtnLabel.Size = UDim2.new(1,0,1,0)
 bypassBtnLabel.BackgroundTransparency = 1
 bypassBtnLabel.Text = "AIMBOT\nBYPASS"
-bypassBtnLabel.TextColor3 = Color3.fromRGB(255,255,255)
+bypassBtnLabel.TextColor3 = C_WHITE
 bypassBtnLabel.Font = Enum.Font.GothamBlack
 bypassBtnLabel.TextSize = 14
 bypassBtnLabel.TextWrapped = true
@@ -1547,13 +1567,13 @@ end)
 
 local function setBypassButtonActive(state)
     if state then
-        bypassBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-        bypassBtnStroke.Color = Color3.fromRGB(150,150,150)
-        bypassBtnLabel.TextColor3 = Color3.fromRGB(0,0,0)
+        bypassBtn.BackgroundColor3 = C_NR
+        bypassBtnStroke.Color = C_CYAN
+        bypassBtnLabel.TextColor3 = C_WHITE
     else
         bypassBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
-        bypassBtnStroke.Color = Color3.fromRGB(55,55,55)
-        bypassBtnLabel.TextColor3 = Color3.fromRGB(255,255,255)
+        bypassBtnStroke.Color = C_BORDER
+        bypassBtnLabel.TextColor3 = C_DIM
     end
 end
 
@@ -1897,11 +1917,9 @@ end
 local function onAnchorChanged(part)
     return part:GetPropertyChangedSignal("Anchored"):Connect(function()
         if part.Anchored and part.Transparency == 1 then
-            -- Medusa Auto Reset: si está activado, hace insta reset al ser medusado
             if S.medusaAutoReset and not S.batCounterEnabled then
                 instaReset()
             end
-            -- Medusa Counter: si está activado, usa el item
             if S.medusaCounterEnabled then
                 useMedusaCounter()
             end
@@ -2153,7 +2171,128 @@ local function makeDraggable(frame, isFloatingPanel)
 end
 
 -- ============================================================
--- INTERFAZ PRINCIPAL
+-- INTERFAZ PRINCIPAL (ESTILO NRHUB - AZUL ELÉCTRICO)
+-- ============================================================
+local function addCorner(inst, r) local c=Instance.new("UICorner",inst); c.CornerRadius=UDim.new(0,r or 8); return c end
+local function addStroke(inst, col, th, tr) local s=Instance.new("UIStroke",inst); s.Color=col; s.Thickness=th or 1; s.Transparency=tr or 0; return s end
+local function addGradient(inst, c1, c2, rot)
+    local g=Instance.new("UIGradient",inst)
+    g.Color=ColorSequence.new(c1,c2); g.Rotation=rot or 0; return g
+end
+
+-- Fondo con eclipse azul (estilo NRHUB)
+local function addEclipse(parent, corner)
+    local z = parent.ZIndex or 1
+    local sky = Instance.new("Frame", parent)
+    sky.Name = "NinoEclipse"
+    sky.Size = UDim2.new(1,0,1,0); sky.Position = UDim2.new(0,0,0,0)
+    sky.BackgroundColor3 = Color3.fromRGB(2,4,12); sky.BorderSizePixel = 0; sky.ZIndex = z
+    sky.ClipsDescendants = true; addCorner(sky, corner or 14)
+    local skyGrad = Instance.new("UIGradient", sky)
+    skyGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0,2,8)),
+        ColorSequenceKeypoint.new(0.55, Color3.fromRGB(4,8,20)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(10,20,45)),
+    })
+    skyGrad.Rotation = 90
+    -- Anillo azul eléctrico
+    local halo = Instance.new("Frame", sky)
+    halo.Name = "NinoHalo"
+    halo.AnchorPoint = Vector2.new(0.5,0.5)
+    halo.Position = UDim2.new(0.5,0,0.42,0)
+    halo.Size = UDim2.new(0,150,0,150); halo.BackgroundColor3 = C_BLUE_DARK
+    halo.BorderSizePixel = 0; halo.ZIndex = z
+    Instance.new("UICorner", halo).CornerRadius = UDim.new(1,0)
+    local haloGrad = Instance.new("UIGradient", halo)
+    haloGrad.Color = ColorSequence.new(C_CYAN, C_NR)
+    haloGrad.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.25),
+        NumberSequenceKeypoint.new(0.5, 0.55),
+        NumberSequenceKeypoint.new(1, 1),
+    })
+    haloGrad.Rotation = 90
+    -- Sol negro central
+    local sun = Instance.new("Frame", sky)
+    sun.Name = "NinoSun"
+    sun.AnchorPoint = Vector2.new(0.5,0.5)
+    sun.Position = UDim2.new(0.5,0,0.42,0)
+    sun.Size = UDim2.new(0,74,0,74); sun.BackgroundColor3 = Color3.fromRGB(4,6,14)
+    sun.BorderSizePixel = 0; sun.ZIndex = z
+    Instance.new("UICorner", sun).CornerRadius = UDim.new(1,0)
+    local sunStk = Instance.new("UIStroke", sun)
+    sunStk.Color = C_CYAN; sunStk.Thickness = 1.5; sunStk.Transparency = 0.2
+    -- Pulse animation
+    task.spawn(function()
+        while halo and halo.Parent do
+            TweenService:Create(halo, TweenInfo.new(1.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Size = UDim2.new(0,182,0,182)}):Play()
+            TweenService:Create(sunStk, TweenInfo.new(1.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.0}):Play()
+            task.wait(1.8)
+            TweenService:Create(halo, TweenInfo.new(1.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Size = UDim2.new(0,150,0,150)}):Play()
+            TweenService:Create(sunStk, TweenInfo.new(1.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.4}):Play()
+            task.wait(1.8)
+        end
+    end)
+    return sky
+end
+
+-- Barra de progreso para Auto Steal (estilo NR)
+local function createStealProgressBar()
+    local bar = Instance.new("Frame", S.floatingPanelGui or LP.PlayerGui)
+    bar.Size = UDim2.new(0,250,0,84)
+    bar.Position = UDim2.new(0.5,-125,1,-96)
+    bar.BackgroundColor3 = C_BG
+    bar.BorderSizePixel = 0; bar.ZIndex = 100
+    bar.ClipsDescendants = true
+    addCorner(bar,14)
+    addStroke(bar, C_NR, 1.5, 0.3)
+    addEclipse(bar, 14)
+    
+    local header = Instance.new("Frame", bar)
+    header.Size = UDim2.new(1,0,0,30); header.BackgroundColor3 = C_HEADER
+    header.BorderSizePixel = 0; header.ZIndex = 101
+    addCorner(header, 14)
+    
+    local accent = Instance.new("Frame", bar)
+    accent.Size = UDim2.new(1,0,0,2); accent.Position = UDim2.new(0,0,0,30)
+    accent.BackgroundColor3 = C_NR; accent.BorderSizePixel = 0; accent.ZIndex = 102
+    addGradient(accent, C_NR, C_CYAN, 0)
+    
+    local dot = Instance.new("Frame", header)
+    dot.Size = UDim2.new(0,6,0,6); dot.Position = UDim2.new(0,12,0.5,-3)
+    dot.BackgroundColor3 = C_NR; dot.BorderSizePixel = 0; dot.ZIndex = 103
+    addCorner(dot, 3); addGradient(dot, C_NR, C_CYAN, 45)
+    
+    local title = Instance.new("TextLabel", header)
+    title.Size = UDim2.new(0,120,1,0); title.Position = UDim2.new(0,24,0,0)
+    title.BackgroundTransparency = 1; title.Text = "AUTO STEAL"
+    title.TextColor3 = C_WHITE; title.Font = Enum.Font.GothamBlack; title.TextSize = 12
+    title.TextXAlignment = Enum.TextXAlignment.Left; title.ZIndex = 103
+    
+    local pctLbl = Instance.new("TextLabel", header)
+    pctLbl.Size = UDim2.new(0,48,1,0); pctLbl.Position = UDim2.new(1,-78,0,0)
+    pctLbl.BackgroundTransparency = 1; pctLbl.Text = "0%"
+    pctLbl.TextColor3 = C_ACCENT2; pctLbl.Font = Enum.Font.GothamBlack; pctLbl.TextSize = 14
+    pctLbl.TextXAlignment = Enum.TextXAlignment.Right; pctLbl.ZIndex = 103
+    
+    local track = Instance.new("Frame", bar)
+    track.Size = UDim2.new(1,-24,0,8); track.Position = UDim2.new(0,12,1,-16)
+    track.BackgroundColor3 = C_OFF_BG; track.BorderSizePixel = 0; track.ZIndex = 101
+    addCorner(track,4)
+    
+    local fill = Instance.new("Frame", track)
+    fill.Size = UDim2.new(0,0,1,0); fill.BackgroundColor3 = C_NR
+    fill.BorderSizePixel = 0; fill.ZIndex = 102
+    addCorner(fill,4)
+    addGradient(fill, C_NR, C_CYAN, 0)
+    
+    AutoSteal.ProgressFill = fill
+    AutoSteal.ProgressText = pctLbl
+    
+    return bar
+end
+
+-- ============================================================
+-- BUILD GUI PRINCIPAL (ESTILO NRHUB)
 -- ============================================================
 local function buildGui_createScrollingPages(rightPanel)
     local pages = {}
@@ -2186,31 +2325,27 @@ end
 local rowCounts = {Speed = 0, Main = 0, Move = 0, Config = 0}
 
 local function mkCard(pg, pages, h)
-    local C_CARD = Color3.fromRGB(20,20,20)
     rowCounts[pg] = rowCounts[pg] + 1
     local f = Instance.new("Frame", pages[pg])
     f.Size = UDim2.new(1,0,0,h or 38)
-    f.BackgroundColor3 = C_CARD
+    f.BackgroundColor3 = C_ROW
     f.BorderSizePixel = 0
     f.LayoutOrder = rowCounts[pg]
     Instance.new("UICorner", f).CornerRadius = UDim.new(0, 8)
     local stroke = Instance.new("UIStroke", f)
-    stroke.Color = Color3.fromRGB(60,60,60)
+    stroke.Color = C_BORDER
     stroke.Thickness = 0.5
     return f
 end
 
 local function mkToggle(pg, pages, label, defKey, defOn, onToggle, onKeyChanged)
-    local C_ON = Color3.fromRGB(128,0,128)
-    local C_OFF = Color3.fromRGB(60,60,60)
-    local C_WHITE = Color3.fromRGB(255,255,255)
     local card = mkCard(pg, pages, 38)
     local lbl = Instance.new("TextLabel", card)
     lbl.Size = UDim2.new(0,140,1,0)
     lbl.Position = UDim2.new(0,12,0,0)
     lbl.BackgroundTransparency = 1
     lbl.Text = label
-    lbl.TextColor3 = C_WHITE
+    lbl.TextColor3 = C_ACCENT
     lbl.Font = Enum.Font.GothamBold
     lbl.TextSize = 11
     lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -2221,13 +2356,16 @@ local function mkToggle(pg, pages, label, defKey, defOn, onToggle, onKeyChanged)
         keyBtn = Instance.new("TextButton", card)
         keyBtn.Size = UDim2.new(0,60,0,24)
         keyBtn.Position = UDim2.new(1,-110,0.5,-12)
-        keyBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+        keyBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
         keyBtn.BorderSizePixel = 0
         keyBtn.Text = keyName
         keyBtn.TextColor3 = C_WHITE
         keyBtn.Font = Enum.Font.GothamBold
         keyBtn.TextSize = 10
         Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0, 5)
+        local keyStroke = Instance.new("UIStroke", keyBtn)
+        keyStroke.Color = C_BORDER
+        keyStroke.Thickness = 1
         local listening = false
         keyBtn.MouseButton1Click:Connect(function()
             if listening then return end
@@ -2253,21 +2391,21 @@ local function mkToggle(pg, pages, label, defKey, defOn, onToggle, onKeyChanged)
     local pillBg = Instance.new("Frame", card)
     pillBg.Size = UDim2.new(0,28,0,16)
     pillBg.Position = UDim2.new(1,-36,0.5,-8)
-    pillBg.BackgroundColor3 = defOn and C_ON or C_OFF
+    pillBg.BackgroundColor3 = defOn and C_ON_BG or C_OFF_BG
     pillBg.BorderSizePixel = 0
     Instance.new("UICorner", pillBg).CornerRadius = UDim.new(1,0)
     local dot = Instance.new("Frame", pillBg)
     dot.Size = UDim2.new(0,12,0,12)
     dot.Position = defOn and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
-    dot.BackgroundColor3 = defOn and Color3.fromRGB(20,20,20) or C_WHITE
+    dot.BackgroundColor3 = defOn and C_WHITE or C_DIM
     dot.BorderSizePixel = 0
     Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
     local isOn = defOn or false
     local function setV(on)
         isOn = on
-        pillBg.BackgroundColor3 = on and C_ON or C_OFF
+        pillBg.BackgroundColor3 = on and C_ON_BG or C_OFF_BG
         dot.Position = on and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
-        dot.BackgroundColor3 = on and Color3.fromRGB(20,20,20) or C_WHITE
+        dot.BackgroundColor3 = on and C_WHITE or C_DIM
     end
     local clickArea = Instance.new("TextButton", card)
     clickArea.Size = UDim2.new(1,0,1,0)
@@ -2284,7 +2422,6 @@ local function mkToggle(pg, pages, label, defKey, defOn, onToggle, onKeyChanged)
 end
 
 local function mkSlider(pg, pages, label, minVal, maxVal, default, onChange)
-    local C_WHITE = Color3.fromRGB(255,255,255)
     local card = mkCard(pg, pages, 55)
     local lbl = Instance.new("TextLabel", card)
     lbl.Size = UDim2.new(1,0,0,20)
@@ -2301,7 +2438,7 @@ local function mkSlider(pg, pages, label, minVal, maxVal, default, onChange)
     valueLabel.Position = UDim2.new(1,-52,0,8)
     valueLabel.BackgroundTransparency = 1
     valueLabel.Text = tostring(default)
-    valueLabel.TextColor3 = C_WHITE
+    valueLabel.TextColor3 = C_ACCENT2
     valueLabel.Font = Enum.Font.GothamBold
     valueLabel.TextSize = 11
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -2309,20 +2446,20 @@ local function mkSlider(pg, pages, label, minVal, maxVal, default, onChange)
     local sliderBg = Instance.new("Frame", card)
     sliderBg.Size = UDim2.new(1,-24,0,4)
     sliderBg.Position = UDim2.new(0,12,0,40)
-    sliderBg.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    sliderBg.BackgroundColor3 = C_OFF_BG
     sliderBg.BorderSizePixel = 0
     Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1,0)
     
     local sliderFill = Instance.new("Frame", sliderBg)
     sliderFill.Size = UDim2.new((default - minVal) / (maxVal - minVal), 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(128,0,128)
+    sliderFill.BackgroundColor3 = C_NR
     sliderFill.BorderSizePixel = 0
     Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1,0)
     
     local knob = Instance.new("Frame", card)
     knob.Size = UDim2.new(0,12,0,12)
     knob.Position = UDim2.new((default - minVal) / (maxVal - minVal), 0, 0, 34)
-    knob.BackgroundColor3 = Color3.fromRGB(128,0,128)
+    knob.BackgroundColor3 = C_ACCENT2
     knob.BorderSizePixel = 0
     Instance.new("UICorner", knob).CornerRadius = UDim.new(1,0)
     
@@ -2363,14 +2500,13 @@ local function mkSlider(pg, pages, label, minVal, maxVal, default, onChange)
 end
 
 local function mkInput(pg, pages, label, default, onChange)
-    local C_WHITE = Color3.fromRGB(255,255,255)
     local card = mkCard(pg, pages, 38)
     local lbl = Instance.new("TextLabel", card)
     lbl.Size = UDim2.new(0.5,-10,1,0)
     lbl.Position = UDim2.new(0,12,0,0)
     lbl.BackgroundTransparency = 1
     lbl.Text = label
-    lbl.TextColor3 = C_WHITE
+    lbl.TextColor3 = C_ACCENT
     lbl.Font = Enum.Font.GothamBold
     lbl.TextSize = 11
     lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -2378,15 +2514,18 @@ local function mkInput(pg, pages, label, default, onChange)
     local box = Instance.new("TextBox", card)
     box.Size = UDim2.new(0,80,0,28)
     box.Position = UDim2.new(1,-88,0.5,-14)
-    box.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    box.BackgroundColor3 = Color3.fromRGB(0,0,0)
     box.BorderSizePixel = 0
     box.Text = tostring(default)
-    box.TextColor3 = C_WHITE
+    box.TextColor3 = C_ACCENT2
     box.Font = Enum.Font.GothamBlack
     box.TextSize = 11
     box.ClearTextOnFocus = false
     pcall(function() box.ReturnKeyType = Enum.ReturnKeyType.Done end)
     Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+    local boxStroke = Instance.new("UIStroke", box)
+    boxStroke.Color = C_BORDER
+    boxStroke.Thickness = 1
 
     local lastVal = tostring(default)
     local isFocused = false
@@ -2446,27 +2585,26 @@ local function mkInput(pg, pages, label, default, onChange)
 end
 
 local function buildGui_createMiniToggle(gui, showGuiFn)
-    local C_WHITE = Color3.fromRGB(255,255,255)
     local miniToggleBtn = Instance.new("TextButton", gui)
     miniToggleBtn.Name = "MiniToggle"
     miniToggleBtn.Size = UDim2.new(0,160,0,36)
     miniToggleBtn.Position = UDim2.new(0,38,0,60)
-    miniToggleBtn.BackgroundColor3 = Color3.fromRGB(10,10,10)
+    miniToggleBtn.BackgroundColor3 = C_BG
     miniToggleBtn.BorderSizePixel = 0
     miniToggleBtn.Text = ""
     miniToggleBtn.ZIndex = 20
     miniToggleBtn.Visible = false
     Instance.new("UICorner", miniToggleBtn).CornerRadius = UDim.new(0,8)
     local miniStroke = Instance.new("UIStroke", miniToggleBtn)
-    miniStroke.Color = C_WHITE
+    miniStroke.Color = C_NR
     miniStroke.Thickness = 1
-    miniStroke.Transparency = 0.92
+    miniStroke.Transparency = 0.5
     local miniMainText = Instance.new("TextLabel", miniToggleBtn)
     miniMainText.Size = UDim2.new(1,-38,1,0)
     miniMainText.Position = UDim2.new(0,32,0,0)
     miniMainText.BackgroundTransparency = 1
-    miniMainText.Text = "NINO HUB"
-    miniMainText.TextColor3 = C_WHITE
+    miniMainText.Text = "NRHUB"
+    miniMainText.TextColor3 = C_ACCENT2
     miniMainText.Font = Enum.Font.GothamBlack
     miniMainText.TextSize = 14
     miniMainText.TextXAlignment = Enum.TextXAlignment.Left
@@ -2738,14 +2876,16 @@ local function buildMoveTab(pages)
         local lblObj = Instance.new("TextLabel", card)
         lblObj.Size = UDim2.new(0,120,1,0); lblObj.Position = UDim2.new(0,12,0,0)
         lblObj.BackgroundTransparency = 1; lblObj.Text = lbl
-        lblObj.TextColor3 = Color3.fromRGB(255,255,255); lblObj.Font = Enum.Font.GothamBold; lblObj.TextSize = 11
+        lblObj.TextColor3 = C_WHITE; lblObj.Font = Enum.Font.GothamBold; lblObj.TextSize = 11
         lblObj.TextXAlignment = Enum.TextXAlignment.Left
         local keyBtn = Instance.new("TextButton", card)
         keyBtn.Size = UDim2.new(0,60,0,24); keyBtn.Position = UDim2.new(1,-70,0.5,-12)
-        keyBtn.BackgroundColor3 = Color3.fromRGB(40,40,40); keyBtn.BorderSizePixel = 0
+        keyBtn.BackgroundColor3 = Color3.fromRGB(0,0,0); keyBtn.BorderSizePixel = 0
         keyBtn.Text = (keyEntry.kb or keyEntry.gp or Enum.KeyCode.Unknown).Name
-        keyBtn.TextColor3 = Color3.fromRGB(255,255,255); keyBtn.Font = Enum.Font.GothamBold; keyBtn.TextSize = 10
+        keyBtn.TextColor3 = C_WHITE; keyBtn.Font = Enum.Font.GothamBold; keyBtn.TextSize = 10
         Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0,5)
+        local keyStroke = Instance.new("UIStroke", keyBtn)
+        keyStroke.Color = C_BORDER; keyStroke.Thickness = 1
         local listening = false
         keyBtn.MouseButton1Click:Connect(function()
             if listening then return end
@@ -2775,10 +2915,6 @@ local function buildMoveTab(pages)
 end
 
 local function buildConfigTab(pages)
-    local C_ON = Color3.fromRGB(128,0,128)
-    local C_OFF = Color3.fromRGB(60,60,60)
-    local C_WHITE = Color3.fromRGB(255,255,255)
-
     -- Auto Steal Toggle
     do
         local card = mkCard("Config", pages, 38)
@@ -2788,18 +2924,18 @@ local function buildConfigTab(pages)
         lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 11
         local pill = Instance.new("Frame", card)
         pill.Size = UDim2.new(0,28,0,16); pill.Position = UDim2.new(1,-36,0.5,-8)
-        pill.BackgroundColor3 = C_OFF; pill.BorderSizePixel = 0
+        pill.BackgroundColor3 = C_OFF_BG; pill.BorderSizePixel = 0
         Instance.new("UICorner", pill).CornerRadius = UDim.new(1,0)
         local dot = Instance.new("Frame", pill)
         dot.Size = UDim2.new(0,12,0,12); dot.Position = UDim2.new(0,2,0.5,-6)
-        dot.BackgroundColor3 = C_WHITE; dot.BorderSizePixel = 0
+        dot.BackgroundColor3 = C_DIM; dot.BorderSizePixel = 0
         Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
         local stealOn = false
         local function setStealVis(on)
             stealOn = on
-            pill.BackgroundColor3 = on and C_ON or C_OFF
+            pill.BackgroundColor3 = on and C_ON_BG or C_OFF_BG
             dot.Position = on and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
-            dot.BackgroundColor3 = on and Color3.fromRGB(20,20,20) or C_WHITE
+            dot.BackgroundColor3 = on and C_WHITE or C_DIM
         end
         S.setInstaGrab = setStealVis
         local click = Instance.new("TextButton", card)
@@ -2842,18 +2978,18 @@ local function buildConfigTab(pages)
         lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 11
         local pill = Instance.new("Frame", card)
         pill.Size = UDim2.new(0,28,0,16); pill.Position = UDim2.new(1,-36,0.5,-8)
-        pill.BackgroundColor3 = C_OFF; pill.BorderSizePixel = 0
+        pill.BackgroundColor3 = C_OFF_BG; pill.BorderSizePixel = 0
         Instance.new("UICorner", pill).CornerRadius = UDim.new(1,0)
         local dot = Instance.new("Frame", pill)
         dot.Size = UDim2.new(0,12,0,12); dot.Position = UDim2.new(0,2,0.5,-6)
-        dot.BackgroundColor3 = C_WHITE; dot.BorderSizePixel = 0
+        dot.BackgroundColor3 = C_DIM; dot.BorderSizePixel = 0
         Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
         local resetOn = false
         local function setResetVis(on)
             resetOn = on
-            pill.BackgroundColor3 = on and C_ON or C_OFF
+            pill.BackgroundColor3 = on and C_ON_BG or C_OFF_BG
             dot.Position = on and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
-            dot.BackgroundColor3 = on and Color3.fromRGB(20,20,20) or C_WHITE
+            dot.BackgroundColor3 = on and C_WHITE or C_DIM
         end
         local click = Instance.new("TextButton", card)
         click.Size = UDim2.new(1,0,1,0); click.BackgroundTransparency = 1; click.Text = ""; click.ZIndex = 3
@@ -2880,10 +3016,12 @@ local function buildConfigTab(pages)
         lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 11
         local keyBtn = Instance.new("TextButton", card)
         keyBtn.Size = UDim2.new(0,60,0,24); keyBtn.Position = UDim2.new(1,-70,0.5,-12)
-        keyBtn.BackgroundColor3 = Color3.fromRGB(40,40,40); keyBtn.BorderSizePixel = 0
+        keyBtn.BackgroundColor3 = Color3.fromRGB(0,0,0); keyBtn.BorderSizePixel = 0
         keyBtn.Text = (S.KB.GuiHide.kb or S.KB.GuiHide.gp or Enum.KeyCode.Unknown).Name
         keyBtn.TextColor3 = C_WHITE; keyBtn.Font = Enum.Font.GothamBold; keyBtn.TextSize = 10
         Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0,5)
+        local keyStroke = Instance.new("UIStroke", keyBtn)
+        keyStroke.Color = C_BORDER; keyStroke.Thickness = 1
         local listening = false
         keyBtn.MouseButton1Click:Connect(function()
             if listening then return end
@@ -2918,18 +3056,18 @@ local function buildConfigTab(pages)
         lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 11
         local pill = Instance.new("Frame", card)
         pill.Size = UDim2.new(0,28,0,16); pill.Position = UDim2.new(1,-36,0.5,-8)
-        pill.BackgroundColor3 = C_OFF; pill.BorderSizePixel = 0
+        pill.BackgroundColor3 = C_OFF_BG; pill.BorderSizePixel = 0
         Instance.new("UICorner", pill).CornerRadius = UDim.new(1,0)
         local dot = Instance.new("Frame", pill)
         dot.Size = UDim2.new(0,12,0,12); dot.Position = UDim2.new(0,2,0.5,-6)
-        dot.BackgroundColor3 = C_WHITE; dot.BorderSizePixel = 0
+        dot.BackgroundColor3 = C_DIM; dot.BorderSizePixel = 0
         Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
         local lockOn = false
         local function setLockVis(on)
             lockOn = on
-            pill.BackgroundColor3 = on and C_ON or C_OFF
+            pill.BackgroundColor3 = on and C_ON_BG or C_OFF_BG
             dot.Position = on and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
-            dot.BackgroundColor3 = on and Color3.fromRGB(20,20,20) or C_WHITE
+            dot.BackgroundColor3 = on and C_WHITE or C_DIM
         end
         S.setLockUI_Visual = setLockVis
         local click = Instance.new("TextButton", card)
@@ -2948,18 +3086,18 @@ local function buildConfigTab(pages)
         lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 11
         local pill = Instance.new("Frame", card)
         pill.Size = UDim2.new(0,28,0,16); pill.Position = UDim2.new(1,-36,0.5,-8)
-        pill.BackgroundColor3 = C_OFF; pill.BorderSizePixel = 0
+        pill.BackgroundColor3 = C_OFF_BG; pill.BorderSizePixel = 0
         Instance.new("UICorner", pill).CornerRadius = UDim.new(1,0)
         local dot = Instance.new("Frame", pill)
         dot.Size = UDim2.new(0,12,0,12); dot.Position = UDim2.new(0,2,0.5,-6)
-        dot.BackgroundColor3 = C_WHITE; dot.BorderSizePixel = 0
+        dot.BackgroundColor3 = C_DIM; dot.BorderSizePixel = 0
         Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
         local hideButtonsOn = false
         local function setHideButtonsVis(on)
             hideButtonsOn = on
-            pill.BackgroundColor3 = on and C_ON or C_OFF
+            pill.BackgroundColor3 = on and C_ON_BG or C_OFF_BG
             dot.Position = on and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
-            dot.BackgroundColor3 = on and Color3.fromRGB(20,20,20) or C_WHITE
+            dot.BackgroundColor3 = on and C_WHITE or C_DIM
         end
         S.setHideOpiumButtons = setHideButtonsVis
         local click2 = Instance.new("TextButton", card)
@@ -2990,13 +3128,15 @@ local function buildConfigTab(pages)
         local resetBtn = Instance.new("TextButton", card)
         resetBtn.Size = UDim2.new(0,80,0,28)
         resetBtn.Position = UDim2.new(1,-90,0.5,-14)
-        resetBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+        resetBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
         resetBtn.BorderSizePixel = 0
         resetBtn.Text = "Reset"
         resetBtn.TextColor3 = C_WHITE
         resetBtn.Font = Enum.Font.GothamBold
         resetBtn.TextSize = 11
         Instance.new("UICorner", resetBtn).CornerRadius = UDim.new(0,6)
+        local resetStroke = Instance.new("UIStroke", resetBtn)
+        resetStroke.Color = C_BORDER; resetStroke.Thickness = 1
         resetBtn.MouseButton1Click:Connect(function()
             local originalText = resetBtn.Text
             resetBtn.Text = "..."
@@ -3013,15 +3153,6 @@ end
 -- BUILD GUI PRINCIPAL
 -- ============================================================
 local function buildGui()
-    local C_BG_OUTER  = Color3.fromRGB(8,8,8)
-    local C_BG_INNER  = Color3.fromRGB(10,10,10)
-    local C_WHITE     = Color3.fromRGB(255,255,255)
-    local C_DIM       = Color3.fromRGB(140,140,140)
-    local C_ACCENT    = Color3.fromRGB(128,0,128)
-    local C_BORDER    = Color3.fromRGB(80,80,80)
-    local C_CARD_BG   = Color3.fromRGB(20,20,20)
-    local C_ACTIVE_BG = Color3.fromRGB(35,35,35)
-
     local TOTAL_W  = 480
     local TOTAL_H  = 482
     local SIDEBAR_W = 155
@@ -3041,7 +3172,7 @@ local function buildGui()
     main.Name = "Main"
     main.Size = UDim2.new(0, TOTAL_W, 0, TOTAL_H)
     main.Position = UDim2.new(0, 40, 0, 0)
-    main.BackgroundColor3 = C_BG_OUTER
+    main.BackgroundColor3 = C_BG
     main.BorderSizePixel = 0
     main.ClipsDescendants = true
     main.Visible = true
@@ -3051,11 +3182,14 @@ local function buildGui()
     mainStroke.Thickness = 1
     S.mainMenuFrame = main
     makeDraggable(main, false)
+    
+    -- Fondo con eclipse
+    addEclipse(main, 12)
 
     local sidebar = Instance.new("Frame", main)
     sidebar.Size = UDim2.new(0, SIDEBAR_W, 1, 0)
     sidebar.Position = UDim2.new(0,0,0,0)
-    sidebar.BackgroundColor3 = C_BG_OUTER
+    sidebar.BackgroundColor3 = C_BG
     sidebar.BorderSizePixel = 0
     sidebar.ClipsDescendants = true
     Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 12)
@@ -3080,7 +3214,7 @@ local function buildGui()
     logoImage.BackgroundTransparency = 1
     logoImage.Image = "rbxassetid://135894687762727"
     logoImage.ScaleType = Enum.ScaleType.Crop
-    logoImage.ImageColor3 = Color3.fromRGB(128,0,128)
+    logoImage.ImageColor3 = C_NR
     logoImage.ImageTransparency = 0.45
 
     local fadeGradient = Instance.new("UIGradient", logoImage)
@@ -3093,7 +3227,7 @@ local function buildGui()
 
     local overlay = Instance.new("Frame", headerFrame)
     overlay.Size = UDim2.new(1,0,1,0)
-    overlay.BackgroundColor3 = Color3.fromRGB(8,8,8)
+    overlay.BackgroundColor3 = C_BG
     overlay.BackgroundTransparency = 0.35
     overlay.BorderSizePixel = 0
 
@@ -3109,8 +3243,8 @@ local function buildGui()
     titleLabel.Size = UDim2.new(1,-16,0,32)
     titleLabel.Position = UDim2.new(0,8,0,10)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = "NINO HUB"
-    titleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+    titleLabel.Text = "NRHUB"
+    titleLabel.TextColor3 = C_WHITE
     titleLabel.Font = Enum.Font.GothamBlack
     titleLabel.TextSize = 22
     titleLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -3121,20 +3255,22 @@ local function buildGui()
     logoBadge.BackgroundColor3 = Color3.fromRGB(0,0,0)
     logoBadge.BackgroundTransparency = 0.2
     logoBadge.BorderSizePixel = 0
-    logoBadge.Text = "N"
-    logoBadge.TextColor3 = Color3.fromRGB(255,255,255)
+    logoBadge.Text = "NR"
+    logoBadge.TextColor3 = C_WHITE
     logoBadge.Font = Enum.Font.GothamBlack
-    logoBadge.TextSize = 80
+    logoBadge.TextSize = 70
     logoBadge.TextXAlignment = Enum.TextXAlignment.Center
     logoBadge.TextYAlignment = Enum.TextYAlignment.Center
     Instance.new("UICorner", logoBadge).CornerRadius = UDim.new(0, 20)
+    local badgeStroke = Instance.new("UIStroke", logoBadge)
+    badgeStroke.Color = C_NR; badgeStroke.Thickness = 1.5; badgeStroke.Transparency = 0.3
 
     local subLabel = Instance.new("TextLabel", headerFrame)
     subLabel.Size = UDim2.new(1,-16,0,16)
     subLabel.Position = UDim2.new(0,8,0,42)
     subLabel.BackgroundTransparency = 1
-    subLabel.Text = "NINO HUB"
-    subLabel.TextColor3 = Color3.fromRGB(180,180,180)
+    subLabel.Text = "NRHUB"
+    subLabel.TextColor3 = C_DIM
     subLabel.Font = Enum.Font.Gotham
     subLabel.TextSize = 10
     subLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -3142,7 +3278,7 @@ local function buildGui()
     local accentLine = Instance.new("Frame", headerFrame)
     accentLine.Size = UDim2.new(0,40,0,2)
     accentLine.Position = UDim2.new(0.5,-20,0,62)
-    accentLine.BackgroundColor3 = Color3.fromRGB(128,0,128)
+    accentLine.BackgroundColor3 = C_NR
     accentLine.BackgroundTransparency = 0.6
     accentLine.BorderSizePixel = 0
     Instance.new("UICorner", accentLine).CornerRadius = UDim.new(1,0)
@@ -3174,7 +3310,7 @@ local function buildGui()
     for i, name in ipairs(TAB_NAMES) do
         local btn = Instance.new("TextButton", tabListFrame)
         btn.Size = UDim2.new(1,0,0,36)
-        btn.BackgroundColor3 = C_CARD_BG
+        btn.BackgroundColor3 = C_ROW
         btn.BorderSizePixel = 0
         btn.Text = ""
         btn.LayoutOrder = i
@@ -3183,7 +3319,7 @@ local function buildGui()
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
         local stroke = Instance.new("UIStroke", btn)
         stroke.Color = C_BORDER
-        stroke.Thickness = 2
+        stroke.Thickness = 1.5
         stroke.Transparency = 0
 
         local lbl = Instance.new("TextLabel", btn)
@@ -3198,7 +3334,7 @@ local function buildGui()
         local activeIndicator = Instance.new("Frame", btn)
         activeIndicator.Size = UDim2.new(0.8,0,0,2)
         activeIndicator.Position = UDim2.new(0.1,0,1,-2)
-        activeIndicator.BackgroundColor3 = C_ACCENT
+        activeIndicator.BackgroundColor3 = C_NR
         activeIndicator.BorderSizePixel = 0
         activeIndicator.Visible = (name == "Speed")
         Instance.new("UICorner", activeIndicator).CornerRadius = UDim.new(1,0)
@@ -3212,14 +3348,14 @@ local function buildGui()
     local rightPanel = Instance.new("Frame", main)
     rightPanel.Size = UDim2.new(0, TOTAL_W - SIDEBAR_W - 1, 1, 0)
     rightPanel.Position = UDim2.new(0, SIDEBAR_W+1, 0, 0)
-    rightPanel.BackgroundColor3 = C_BG_INNER
+    rightPanel.BackgroundColor3 = C_PANEL
     rightPanel.BorderSizePixel = 0
     rightPanel.ClipsDescendants = true
     Instance.new("UICorner", rightPanel).CornerRadius = UDim.new(0, 12)
 
     local topBar = Instance.new("Frame", rightPanel)
     topBar.Size = UDim2.new(1,0,0,44)
-    topBar.BackgroundColor3 = C_BG_INNER
+    topBar.BackgroundColor3 = C_PANEL
     topBar.BorderSizePixel = 0
     local topBarDiv = Instance.new("Frame", rightPanel)
     topBarDiv.Size = UDim2.new(1,-20,0,1)
@@ -3240,14 +3376,16 @@ local function buildGui()
     local closeBtn = Instance.new("TextButton", topBar)
     closeBtn.Size = UDim2.new(0,28,0,28)
     closeBtn.Position = UDim2.new(1,-34,0.5,-14)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
     closeBtn.BorderSizePixel = 0
     closeBtn.Text = "–"
-    closeBtn.TextColor3 = C_WHITE
+    closeBtn.TextColor3 = C_DIM
     closeBtn.Font = Enum.Font.GothamBlack
     closeBtn.TextSize = 20
     closeBtn.AutoButtonColor = false
     Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1,0)
+    local closeStroke = Instance.new("UIStroke", closeBtn)
+    closeStroke.Color = C_BORDER; closeStroke.Thickness = 1
 
     closeBtn.MouseButton1Click:Connect(function()
         main.Visible = false
@@ -3272,7 +3410,7 @@ local function buildGui()
             local isActive = (tName == name)
             tData.lbl.TextColor3 = isActive and C_WHITE or C_DIM
             tData.ind.Visible = isActive
-            tData.bg.BackgroundColor3 = isActive and C_ACTIVE_BG or C_CARD_BG
+            tData.bg.BackgroundColor3 = isActive and C_ACTIVE_BG or C_ROW
             tData.stroke.Transparency = isActive and 0 or 0.4
         end
     end
@@ -3426,7 +3564,7 @@ local function buildGui()
 end
 
 -- ============================================================
--- PANEL FLOTANTE PRINCIPAL
+-- PANEL FLOTANTE PRINCIPAL (ESTILO NR)
 -- ============================================================
 local function createFloatingButtonPanel()
     local panelGui = Instance.new("ScreenGui")
@@ -3439,12 +3577,14 @@ local function createFloatingButtonPanel()
     local panelFrame = Instance.new("Frame", panelGui)
     panelFrame.Size = UDim2.new(0, 155, 0, 0)
     panelFrame.Position = UDim2.new(1, -163, 0.5, -200)
-    panelFrame.BackgroundColor3 = Color3.fromRGB(4,4,6)
-    panelFrame.BackgroundTransparency = 1
+    panelFrame.BackgroundColor3 = C_BG
+    panelFrame.BackgroundTransparency = 0
     panelFrame.BorderSizePixel = 0
     panelFrame.Active = true
     panelFrame.AutomaticSize = Enum.AutomaticSize.Y
     Instance.new("UICorner", panelFrame).CornerRadius = UDim.new(0,14)
+    local panelStroke = Instance.new("UIStroke", panelFrame)
+    panelStroke.Color = C_NR; panelStroke.Thickness = 1.5; panelStroke.Transparency = 0.3
     S.floatingPanelFrame = panelFrame
     makeDraggable(panelFrame, true)
     
@@ -3466,27 +3606,22 @@ local function createFloatingButtonPanel()
     pad.PaddingTop = UDim.new(0,2)
     pad.PaddingBottom = UDim.new(0,2)
     
-    local BLACK_OFF = Color3.fromRGB(0,0,0)
-    local WHITE_ON = Color3.fromRGB(255,255,255)
-    local STROKE_OFF = Color3.fromRGB(80,80,80)
-    local STROKE_ON = Color3.fromRGB(150,150,150)
-    
     local function makePButton(label1, label2, order)
         local btn = Instance.new("TextButton", btnGrid)
         btn.LayoutOrder = order
-        btn.BackgroundColor3 = BLACK_OFF
+        btn.BackgroundColor3 = C_ROW
         btn.BorderSizePixel = 0
         btn.Text = ""
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
         local stroke = Instance.new("UIStroke", btn)
-        stroke.Color = Color3.fromRGB(100,100,100)
-        stroke.Thickness = 2
+        stroke.Color = C_BORDER
+        stroke.Thickness = 1.5
         local t1 = Instance.new("TextLabel", btn)
         t1.Size = UDim2.new(1,0,0.55,0)
         t1.Position = UDim2.new(0,0,0.06,0)
         t1.BackgroundTransparency = 1
         t1.Text = label1
-        t1.TextColor3 = WHITE_ON
+        t1.TextColor3 = C_WHITE
         t1.Font = Enum.Font.GothamBlack
         t1.TextSize = 12
         t1.TextXAlignment = Enum.TextXAlignment.Center
@@ -3495,7 +3630,7 @@ local function createFloatingButtonPanel()
         t2.Position = UDim2.new(0,0,0.55,0)
         t2.BackgroundTransparency = 1
         t2.Text = label2
-        t2.TextColor3 = WHITE_ON
+        t2.TextColor3 = C_DIM
         t2.Font = Enum.Font.GothamBlack
         t2.TextSize = 10
         t2.TextXAlignment = Enum.TextXAlignment.Center
@@ -3509,11 +3644,12 @@ local function createFloatingButtonPanel()
     end
     
     local function setButtonActive(btn, stroke, label1, label2, active)
-        btn.BackgroundColor3 = active and WHITE_ON or BLACK_OFF
-        stroke.Color = active and STROKE_ON or STROKE_OFF
-        local textColor = active and Color3.fromRGB(0,0,0) or WHITE_ON
-        if label1 then label1.TextColor3 = textColor end
-        if label2 then label2.TextColor3 = textColor end
+        btn.BackgroundColor3 = active and C_NR or C_ROW
+        stroke.Color = active and C_CYAN or C_BORDER
+        local textColor1 = active and C_WHITE or C_WHITE
+        local textColor2 = active and C_WHITE or C_DIM
+        if label1 then label1.TextColor3 = textColor1 end
+        if label2 then label2.TextColor3 = textColor2 end
     end
     S._setPButtonActive = setButtonActive
 
@@ -3693,7 +3829,7 @@ local function createFloatingButtonPanel()
 end
 
 -- ============================================================
--- HUD PRINCIPAL
+-- HUD PRINCIPAL (ESTILO NR)
 -- ============================================================
 local function createHUD()
     local HudGui = Instance.new("ScreenGui")
@@ -3706,7 +3842,7 @@ local function createHUD()
     S.topBarHUD = Instance.new("Frame")
     S.topBarHUD.Size = UDim2.new(0,235 * S.hudScale, 0,29 * S.hudScale)
     S.topBarHUD.Position = UDim2.new(0.5, -235 * S.hudScale / 2, 0, 12)
-    S.topBarHUD.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    S.topBarHUD.BackgroundColor3 = C_BG
     S.topBarHUD.BackgroundTransparency = 0.1
     S.topBarHUD.BorderSizePixel = 0
     S.topBarHUD.Visible = true
@@ -3714,25 +3850,25 @@ local function createHUD()
     Instance.new("UICorner", S.topBarHUD).CornerRadius = UDim.new(0,9)
     local topStroke = Instance.new("UIStroke", S.topBarHUD)
     topStroke.Thickness = 1.3
-    topStroke.Color = Color3.fromRGB(128,0,128)
-    topStroke.Transparency = 0.88
+    topStroke.Color = C_NR
+    topStroke.Transparency = 0.5
     
     local topLabel = Instance.new("TextLabel", S.topBarHUD)
     topLabel.Size = UDim2.new(1,-10,1,0)
     topLabel.Position = UDim2.new(0,5,0,0)
     topLabel.BackgroundTransparency = 1
-    topLabel.Text = "NINO HUB | FPS: 0 PING: 0ms"
-    topLabel.TextColor3 = Color3.fromRGB(0,0,0)
+    topLabel.Text = "NRHUB | FPS: 0 PING: 0ms"
+    topLabel.TextColor3 = C_ACCENT2
     topLabel.Font = Enum.Font.GothamBold
     topLabel.TextSize = 12.5
-    topLabel.TextStrokeTransparency = 0.6
-    topLabel.TextStrokeColor3 = Color3.fromRGB(128,0,128)
+    topLabel.TextStrokeTransparency = 0.3
+    topLabel.TextStrokeColor3 = C_BLUE_DARK
     topLabel.ClipsDescendants = true
     
     S.progressBarFrame = Instance.new("Frame")
     S.progressBarFrame.Size = UDim2.new(0,235 * S.hudScale, 0,15 * S.hudScale)
     S.progressBarFrame.Position = UDim2.new(0.5, -235 * S.hudScale / 2, 0, 12 + 29 * S.hudScale + 5)
-    S.progressBarFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    S.progressBarFrame.BackgroundColor3 = C_OFF_BG
     S.progressBarFrame.BackgroundTransparency = 0.35
     S.progressBarFrame.BorderSizePixel = 0
     S.progressBarFrame.Visible = true
@@ -3741,27 +3877,31 @@ local function createHUD()
     Instance.new("UICorner", S.progressBarFrame).CornerRadius = UDim.new(0,6)
     local progStroke = Instance.new("UIStroke", S.progressBarFrame)
     progStroke.Thickness = 1.1
-    progStroke.Color = Color3.fromRGB(128,0,128)
-    progStroke.Transparency = 0.88
+    progStroke.Color = C_NR
+    progStroke.Transparency = 0.5
     
     S.progressFill = Instance.new("Frame", S.progressBarFrame)
     S.progressFill.Size = UDim2.new(0,0,1,0)
     S.progressFill.Position = UDim2.new(0,0,0,0)
-    S.progressFill.BackgroundColor3 = Color3.fromRGB(128,0,128)
+    S.progressFill.BackgroundColor3 = C_NR
     S.progressFill.BorderSizePixel = 0
     Instance.new("UICorner", S.progressFill).CornerRadius = UDim.new(0,4)
+    addGradient(S.progressFill, C_NR, C_CYAN, 0)
     
     S.progressPct = Instance.new("TextLabel", S.progressBarFrame)
     S.progressPct.Size = UDim2.new(1,0,1,0)
     S.progressPct.BackgroundTransparency = 1
     S.progressPct.Text = "0%"
-    S.progressPct.TextColor3 = Color3.fromRGB(0,0,0)
+    S.progressPct.TextColor3 = C_WHITE
     S.progressPct.Font = Enum.Font.GothamBold
     S.progressPct.TextSize = 10.5
-    S.progressPct.TextStrokeTransparency = 0.7
+    S.progressPct.TextStrokeTransparency = 0.3
     
     AutoSteal.ProgressFill = S.progressFill
     AutoSteal.ProgressText = S.progressPct
+    
+    -- Barra de progreso flotante para Auto Steal
+    createStealProgressBar()
     
     local _hudTimer = 0
     RunService.Heartbeat:Connect(function(dt)
@@ -3770,7 +3910,7 @@ local function createHUD()
             _hudTimer = 0
             local ping = 0
             pcall(function() ping = math.floor(LP:GetNetworkPing()*1000) end)
-            topLabel.Text = "NINO HUB | FPS: "..S.currentFPS.." PING: "..ping.."ms"
+            topLabel.Text = "NRHUB | FPS: "..S.currentFPS.." PING: "..ping.."ms"
         end
     end)
 end
