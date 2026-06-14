@@ -461,38 +461,236 @@ local function safeSetfpscap(v) if type(setfpscap) == "function" then pcall(setf
 local function safeSethiddenproperty(obj, prop, val) if type(sethiddenproperty) == "function" then pcall(sethiddenproperty, obj, prop, val) end end
 
 -- ============================================================
--- SPEED BYPASS (Nither)
+-- UI SPEED BYPASS (Nither)
 -- ============================================================
-local SPEED_AMOUNT = 31.25
-local LAG_AMOUNT = 0.011200
-local speedBypassEnabled = false
-local speedToggleKey = Enum.KeyCode.V
+local RED = Color3.fromRGB(220, 30, 30)
+local WINE = Color3.fromRGB(140, 10, 40)
+local ROW_BG = Color3.fromRGB(20, 20, 35)
+local BTN_BG = Color3.fromRGB(30, 10, 15)
+local MIN_NORM = Color3.fromRGB(30, 10, 15)
+local MIN_HOV = Color3.fromRGB(60, 20, 25)
+local WHITE = Color3.new(1, 1, 1)
+local GUI_W = 230
+local GUI_H = 100
+local GUI_MIN = 40
 
-local function onSpeedBypassToggle()
-    speedBypassEnabled = not speedBypassEnabled
-    if updateSpeedBypassButton then updateSpeedBypassButton(speedBypassEnabled) end
+local speedFrame = Instance.new("Frame")
+speedFrame.Size = UDim2.new(0, GUI_W, 0, GUI_H)
+speedFrame.Position = UDim2.new(1, -240, 0.5, -50)
+speedFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+speedFrame.BackgroundTransparency = 0
+speedFrame.BorderSizePixel = 0
+speedFrame.Active = true
+speedFrame.ClipsDescendants = true
+speedFrame.Parent = CoreGui
+Instance.new("UICorner", speedFrame).CornerRadius = UDim.new(0, 10)
+
+local function redStroke(parent, thickness)
+    local s = Instance.new("UIStroke")
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    s.Thickness = thickness or 1.5
+    s.Color = RED
+    s.Parent = parent
 end
+redStroke(speedFrame, 1.5)
 
-local speedBypassOptimized = false
+local speedIcon = Instance.new("ImageLabel")
+speedIcon.Size = UDim2.new(0, 22, 0, 22)
+speedIcon.Position = UDim2.new(0, 8, 0, 9)
+speedIcon.BackgroundTransparency = 1
+speedIcon.Image = "rbxassetid://103327125341396"
+speedIcon.ImageColor3 = RED
+speedIcon.ScaleType = Enum.ScaleType.Fit
+speedIcon.Parent = speedFrame
 
-local function applySpeedBypassOptimizations()
-    if speedBypassOptimized then return end
-    speedBypassOptimized = true
-    pcall(function()
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-        Lighting.GlobalShadows = false
-        Lighting.FogEnd = 9e9
-        Lighting.Brightness = 1
-        Lighting.EnvironmentDiffuseScale = 0
-        Lighting.EnvironmentSpecularScale = 0
-        for _, e in pairs(Lighting:GetChildren()) do
-            if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("BloomEffect") or e:IsA("ColorCorrectionEffect") then
-                e.Enabled = false
+local speedTitle = Instance.new("TextLabel")
+speedTitle.Size = UDim2.new(1, -70, 0, 26)
+speedTitle.Position = UDim2.new(0, 36, 0, 7)
+speedTitle.BackgroundTransparency = 1
+speedTitle.Text = "Speed Bypass"
+speedTitle.TextColor3 = WHITE
+speedTitle.TextSize = 17
+speedTitle.Font = Enum.Font.Fantasy
+speedTitle.TextXAlignment = Enum.TextXAlignment.Left
+speedTitle.TextYAlignment = Enum.TextYAlignment.Center
+speedTitle.Parent = speedFrame
+
+local speedMinBtn = Instance.new("TextButton")
+speedMinBtn.Size = UDim2.new(0, 24, 0, 24)
+speedMinBtn.Position = UDim2.new(1, -32, 0, 8)
+speedMinBtn.BackgroundColor3 = MIN_NORM
+speedMinBtn.BorderSizePixel = 0
+speedMinBtn.Text = "-"
+speedMinBtn.TextColor3 = RED
+speedMinBtn.TextSize = 16
+speedMinBtn.Font = Enum.Font.Fantasy
+speedMinBtn.AutoButtonColor = false
+speedMinBtn.Parent = speedFrame
+Instance.new("UICorner", speedMinBtn).CornerRadius = UDim.new(0, 6)
+redStroke(speedMinBtn, 1.5)
+
+local speedMinimized = false
+speedMinBtn.MouseButton1Click:Connect(function()
+    speedMinimized = not speedMinimized
+    speedMinBtn.Text = speedMinimized and "+" or "-"
+    TweenService:Create(speedFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Size = speedMinimized and UDim2.new(0, GUI_W, 0, GUI_MIN) or UDim2.new(0, GUI_W, 0, GUI_H)
+    }):Play()
+end)
+
+local speedRow = Instance.new("Frame")
+speedRow.Position = UDim2.new(0, 10, 0, 52)
+speedRow.Size = UDim2.new(1, -20, 0, 34)
+speedRow.BackgroundColor3 = ROW_BG
+speedRow.BorderSizePixel = 0
+speedRow.Parent = speedFrame
+Instance.new("UICorner", speedRow).CornerRadius = UDim.new(0, 8)
+redStroke(speedRow, 1.5)
+
+local speedRowLbl = Instance.new("TextLabel")
+speedRowLbl.Size = UDim2.new(1, -100, 1, 0)
+speedRowLbl.Position = UDim2.new(0, 10, 0, 0)
+speedRowLbl.BackgroundTransparency = 1
+speedRowLbl.Text = "Speed Bypass"
+speedRowLbl.TextColor3 = RED
+speedRowLbl.TextSize = 13
+speedRowLbl.Font = Enum.Font.Fantasy
+speedRowLbl.TextXAlignment = Enum.TextXAlignment.Left
+speedRowLbl.Parent = speedRow
+
+local speedKbBadge = Instance.new("Frame")
+speedKbBadge.Size = UDim2.new(0, 28, 0, 18)
+speedKbBadge.Position = UDim2.new(1, -84, 0.5, -9)
+speedKbBadge.BackgroundColor3 = BTN_BG
+speedKbBadge.BorderSizePixel = 0
+speedKbBadge.Parent = speedRow
+Instance.new("UICorner", speedKbBadge).CornerRadius = UDim.new(0, 5)
+redStroke(speedKbBadge, 1.2)
+
+local speedKbLbl = Instance.new("TextLabel")
+speedKbLbl.Size = UDim2.new(1, 0, 1, 0)
+speedKbLbl.BackgroundTransparency = 1
+speedKbLbl.Text = "V"
+speedKbLbl.TextColor3 = RED
+speedKbLbl.TextSize = 9
+speedKbLbl.Font = Enum.Font.GothamBold
+speedKbLbl.TextXAlignment = Enum.TextXAlignment.Center
+speedKbLbl.Parent = speedKbBadge
+
+local speedKbBtn = Instance.new("TextButton")
+speedKbBtn.Size = UDim2.new(1, 0, 1, 0)
+speedKbBtn.BackgroundTransparency = 1
+speedKbBtn.Text = ""
+speedKbBtn.Parent = speedKbBadge
+
+local speedTogTrack = Instance.new("Frame")
+speedTogTrack.Size = UDim2.new(0, 36, 0, 18)
+speedTogTrack.Position = UDim2.new(1, -46, 0.5, -9)
+speedTogTrack.BackgroundColor3 = Color3.fromRGB(60, 10, 20)
+speedTogTrack.BackgroundTransparency = 0
+speedTogTrack.BorderSizePixel = 0
+speedTogTrack.Parent = speedRow
+Instance.new("UICorner", speedTogTrack).CornerRadius = UDim.new(0, 9)
+redStroke(speedTogTrack, 1.5)
+
+local speedTogKnob = Instance.new("TextLabel")
+speedTogKnob.Size = UDim2.new(0, 18, 0, 18)
+speedTogKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+speedTogKnob.Position = UDim2.new(0, 9, 0.5, 0)
+speedTogKnob.BackgroundTransparency = 1
+speedTogKnob.Text = ">"
+speedTogKnob.TextColor3 = WHITE
+speedTogKnob.TextSize = 13
+speedTogKnob.Font = Enum.Font.GothamBold
+speedTogKnob.TextXAlignment = Enum.TextXAlignment.Center
+speedTogKnob.Parent = speedTogTrack
+
+local speedTogBtn = Instance.new("TextButton")
+speedTogBtn.Size = UDim2.new(0, 46, 1, 0)
+speedTogBtn.Position = UDim2.new(1, -46, 0, 0)
+speedTogBtn.BackgroundTransparency = 1
+speedTogBtn.Text = ""
+speedTogBtn.Parent = speedRow
+
+local function speedSetEnabled(state)
+    speedBypassEnabled = state
+    local tw = TweenInfo.new(0.15)
+    speedTogKnob.Text = state and "<" or ">"
+    speedTogKnob.TextColor3 = WHITE
+    TweenService:Create(speedTogKnob, tw, {
+        Position = state and UDim2.new(0, 27, 0.5, 0) or UDim2.new(0, 9, 0.5, 0),
+    }):Play()
+    TweenService:Create(speedTogTrack, tw, {
+        BackgroundColor3 = state and WINE or Color3.fromRGB(60, 10, 20),
+    }):Play()
+    if state then
+        pcall(function()
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+            Lighting.GlobalShadows = false
+            Lighting.FogEnd = 9e9
+            for _, e in pairs(Lighting:GetChildren()) do
+                if e:IsA("BlurEffect") or e:IsA("BloomEffect") then e.Enabled = false end
             end
-        end
-    end)
+        end)
+    end
 end
 
+speedTogBtn.MouseButton1Click:Connect(function() speedSetEnabled(not speedBypassEnabled) end)
+
+speedKbBtn.MouseButton1Click:Connect(function()
+    if speedListeningForKey then return end
+    speedListeningForKey = true
+    speedKbLbl.Text = "?"
+    speedKbLbl.TextColor3 = Color3.fromRGB(255, 200, 50)
+end)
+
+-- Draggable
+local speedDragging = false
+local speedDragStart, speedStartPos
+speedFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        local abs = speedFrame.AbsolutePosition
+        speedFrame.Position = UDim2.new(0, abs.X, 0, abs.Y)
+        speedDragging = true
+        speedDragStart = input.Position
+        speedStartPos = speedFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if not speedDragging then return end
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if speedMinimized then speedDragging = false; return end
+        local d = input.Position - speedDragStart
+        local s = Workspace.CurrentCamera.ViewportSize
+        speedFrame.Position = UDim2.new(0,
+            math.clamp(speedStartPos.X.Offset + d.X, 0, s.X - GUI_W), 0,
+            math.clamp(speedStartPos.Y.Offset + d.Y, 0, s.Y - GUI_H))
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        speedDragging = false
+    end
+end)
+
+-- Keybind
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if speedListeningForKey then
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            speedToggleKey = input.KeyCode
+            speedKbLbl.Text = input.KeyCode.Name
+            speedKbLbl.TextColor3 = RED
+            speedListeningForKey = false
+            speedLastKeybindSet = tick()
+        end
+        return
+    end
+    if input.KeyCode == speedToggleKey and not gpe and (tick() - speedLastKeybindSet > 0.3) then
+        speedSetEnabled(not speedBypassEnabled)
+    end
+end)
+
+-- Movimiento del Speed Bypass
 RunService.RenderStepped:Connect(function()
     if not speedBypassEnabled then return end
     local char = LP.Character
@@ -501,199 +699,15 @@ RunService.RenderStepped:Connect(function()
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hrp and hum and hum.MoveDirection.Magnitude > 0 then
             hrp.Velocity = Vector3.new(
-                hum.MoveDirection.X * SPEED_AMOUNT,
+                hum.MoveDirection.X * 31.25,
                 hrp.Velocity.Y,
-                hum.MoveDirection.Z * SPEED_AMOUNT
+                hum.MoveDirection.Z * 31.25
             )
         end
     end
     local t = tick()
-    while tick() - t < LAG_AMOUNT do end
+    while tick() - t < 0.0112 do end
 end)
-
-UIS.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == speedToggleKey then
-        onSpeedBypassToggle()
-        applySpeedBypassOptimizations()
-    end
-end)
-
--- ============================================================
--- AUTO LEFT / RIGHT (Atr auto play - waypoints)
--- ============================================================
-local leftWaypoints = {
-    Vector3.new(-476.85, -6.59, 94.91),
-    Vector3.new(-485.55, -4.53, 100.61),
-    Vector3.new(-475.60, -6.59, 92.80),
-    Vector3.new(-475.26, -6.57, 21.54),
-}
-local rightWaypoints = {
-    Vector3.new(-475.77, -6.57, 26.76),
-    Vector3.new(-485.85, -4.48, 20.13),
-    Vector3.new(-475.83, -6.59, 26.54),
-    Vector3.new(-476.17, -6.09, 97.73),
-}
-
-local autoPlayProxy = nil
-local autoPlayActiveWaypoints = nil
-local autoPlayWaypointIndex = 1
-local autoPlayCurrentPhase = 1
-local autoPlayConnection = nil
-local autoPlayGoingSpeed = 55
-local autoPlayStealSpeed = 29
-
-local function ensureAutoPlayProxy()
-    local char = LP.Character
-    if not char then return nil end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-    if not autoPlayProxy or autoPlayProxy.Parent ~= char then
-        if autoPlayProxy then autoPlayProxy:Destroy() end
-        autoPlayProxy = Instance.new("Part")
-        autoPlayProxy.Name = "AutoPlayProxy"
-        autoPlayProxy.Size = Vector3.new(1,1,1)
-        autoPlayProxy.Transparency = 1
-        autoPlayProxy.CanCollide = false
-        autoPlayProxy.Massless = true
-        autoPlayProxy.Parent = char
-        local weld = Instance.new("Weld")
-        weld.Part0 = hrp
-        weld.Part1 = autoPlayProxy
-        weld.C0 = CFrame.new(0,0,0)
-        weld.Parent = autoPlayProxy
-    end
-    return autoPlayProxy
-end
-
-local function moveToWaypoint(target, speed)
-    local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    local dir = (target - hrp.Position)
-    local moveDir = dir.Magnitude > 0 and Vector3.new(dir.X, 0, dir.Z).Unit or Vector3.zero
-    local hum = LP.Character:FindFirstChildOfClass("Humanoid")
-    if hum then hum:Move(moveDir, false) end
-    if autoPlayProxy then
-        autoPlayProxy.AssemblyLinearVelocity = Vector3.new(moveDir.X * speed, autoPlayProxy.AssemblyLinearVelocity.Y, moveDir.Z * speed)
-    end
-end
-
-local function stopAutoPlayMovement()
-    if autoPlayProxy then autoPlayProxy.AssemblyLinearVelocity = Vector3.new(0,0,0) end
-    local hum = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
-    if hum then hum:Move(Vector3.zero, false) end
-end
-
-function startAutoLeft()
-    if S.autoLeftEnabled then return end
-    if S.autoRightEnabled then
-        S.autoRightEnabled = false
-        stopAutoRight()
-        if S.autoRightSetVisual then S.autoRightSetVisual(false) end
-    end
-    if autoPlayConnection then autoPlayConnection:Disconnect() end
-    autoPlayActiveWaypoints = leftWaypoints
-    autoPlayWaypointIndex = 1
-    autoPlayCurrentPhase = 1
-    ensureAutoPlayProxy()
-    autoPlayConnection = RunService.Stepped:Connect(function()
-        if not S.autoLeftEnabled or not autoPlayActiveWaypoints then return end
-        local char = LP.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        local target = autoPlayActiveWaypoints[autoPlayWaypointIndex]
-        if not target then return end
-        
-        local dist = (target - hrp.Position).Magnitude
-        local speed = (autoPlayCurrentPhase <= 2) and autoPlayGoingSpeed or autoPlayStealSpeed
-        if dist < 2.5 then
-            autoPlayWaypointIndex = autoPlayWaypointIndex + 1
-            if autoPlayWaypointIndex > #autoPlayActiveWaypoints then
-                autoPlayConnection:Disconnect()
-                autoPlayConnection = nil
-                S.autoLeftEnabled = false
-                if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end
-                if S._setPButtonActive and S._btnAAL then
-                    S._setPButtonActive(S._btnAAL, S._bsAAL, S._l1AAL, S._l2AAL, false)
-                end
-                stopAutoPlayMovement()
-                task.defer(S.startMovement)
-                return
-            end
-            if autoPlayWaypointIndex == 3 then
-                autoPlayCurrentPhase = 3
-            end
-        else
-            moveToWaypoint(target, speed)
-        end
-    end)
-end
-
-function stopAutoLeft()
-    if autoPlayConnection then autoPlayConnection:Disconnect(); autoPlayConnection = nil end
-    autoPlayActiveWaypoints = nil
-    autoPlayWaypointIndex = 1
-    stopAutoPlayMovement()
-    S.autoLeftEnabled = false
-    if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end
-end
-
-function startAutoRight()
-    if S.autoRightEnabled then return end
-    if S.autoLeftEnabled then
-        S.autoLeftEnabled = false
-        stopAutoLeft()
-        if S.autoLeftSetVisual then S.autoLeftSetVisual(false) end
-    end
-    if autoPlayConnection then autoPlayConnection:Disconnect() end
-    autoPlayActiveWaypoints = rightWaypoints
-    autoPlayWaypointIndex = 1
-    autoPlayCurrentPhase = 1
-    ensureAutoPlayProxy()
-    autoPlayConnection = RunService.Stepped:Connect(function()
-        if not S.autoRightEnabled or not autoPlayActiveWaypoints then return end
-        local char = LP.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        local target = autoPlayActiveWaypoints[autoPlayWaypointIndex]
-        if not target then return end
-        
-        local dist = (target - hrp.Position).Magnitude
-        local speed = (autoPlayCurrentPhase <= 2) and autoPlayGoingSpeed or autoPlayStealSpeed
-        if dist < 2.5 then
-            autoPlayWaypointIndex = autoPlayWaypointIndex + 1
-            if autoPlayWaypointIndex > #autoPlayActiveWaypoints then
-                autoPlayConnection:Disconnect()
-                autoPlayConnection = nil
-                S.autoRightEnabled = false
-                if S.autoRightSetVisual then S.autoRightSetVisual(false) end
-                if S._setPButtonActive and S._btnAAR then
-                    S._setPButtonActive(S._btnAAR, S._bsAAR, S._l1AAR, S._l2AAR, false)
-                end
-                stopAutoPlayMovement()
-                task.defer(S.startMovement)
-                return
-            end
-            if autoPlayWaypointIndex == 3 then
-                autoPlayCurrentPhase = 3
-            end
-        else
-            moveToWaypoint(target, speed)
-        end
-    end)
-end
-
-function stopAutoRight()
-    if autoPlayConnection then autoPlayConnection:Disconnect(); autoPlayConnection = nil end
-    autoPlayActiveWaypoints = nil
-    autoPlayWaypointIndex = 1
-    stopAutoPlayMovement()
-    S.autoRightEnabled = false
-    if S.autoRightSetVisual then S.autoRightSetVisual(false) end
-end
-
 -- ============================================================
 -- AUTO STEAL (AUTOGRABPRIME)
 -- ============================================================
@@ -940,7 +954,6 @@ local function executePrimeSteal(prompt, animalData)
             task.wait()
         end
 
-        local alreadyInRange = false
         local fired = false
         for _ = 1, 30 do
             if not prompt.Parent then break end
@@ -949,7 +962,7 @@ local function executePrimeSteal(prompt, animalData)
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp and getAnimalPos(animalData) then
                 if (hrp.Position - getAnimalPos(animalData)).Magnitude <= primeConfig.STEAL_RANGE then
-                    if not alreadyInRange then task.wait(primeConfig.ENTRY_DELAY) end
+                    task.wait(primeConfig.ENTRY_DELAY)
                     for _, fn in ipairs(data.triggerCallbacks) do task.spawn(fn) end
                     fired = true
                     break
@@ -985,7 +998,7 @@ local function stopPrimeAutoSteal()
     if primeStealConnection then primeStealConnection:Disconnect(); primeStealConnection = nil end
 end
 
-scanAllPlotsPrime = function()
+local function scanAllPlotsPrime()
     local newCache = {}
     for _, plot in ipairs(primePlots:GetChildren()) do
         local cache = plotAnimalSync.caches[plot.Name]
@@ -1012,10 +1025,11 @@ end
 scanAllPlotsPrime()
 task.spawn(function() while task.wait(5) do scanAllPlotsPrime() end end)
 
--- Sobrescribir las funciones originales
+-- Sobrescribir funciones originales
+local oldStartAutoSteal = startAutoSteal
+local oldStopAutoSteal = stopAutoSteal
 startAutoSteal = startPrimeAutoSteal
 stopAutoSteal = stopPrimeAutoSteal
-
 -- ============================================================
 -- SCRIPT PRINCIPAL NINO HUB
 -- ============================================================
