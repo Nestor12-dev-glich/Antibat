@@ -247,162 +247,13 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 -- ============================================================
--- SPEED BYPASS (NITHER)
+-- SPEED BYPASS (NITHER) - simplificado
 -- ============================================================
 local speedBypassEnabled = false
 local speedBypassToggleKey = Enum.KeyCode.V
-local speedBypassListening = false
 local speedBypassAmount = 31.25
 local lagAmount = 0.0112
 
--- Optimización visual del speed bypass
-local antiLagDescConn = nil
-local origEffects = {}
-local origWorkspace = {}
-local origSaved = false
-
-local cfg = LP.PlayerGui:FindFirstChild("_NitherCfg")
-if not cfg then
-    cfg = Instance.new("Folder")
-    cfg.Name = "_NitherCfg"
-    cfg.Parent = LP.PlayerGui
-end
-
-local function cfgGet(name, default)
-    local v = cfg:FindFirstChild(name)
-    return v and v.Value or default
-end
-
-local function cfgSet(name, value, class)
-    local v = cfg:FindFirstChild(name)
-    if not v then
-        v = Instance.new(class or "BoolValue")
-        v.Name = name
-        v.Parent = cfg
-    end
-    v.Value = value
-end
-
-if not cfg:FindFirstChild("_OrigSaved") then
-    cfgSet("_OrigSaved", true, "BoolValue")
-    cfgSet("OrigGlobalShadows", Lighting.GlobalShadows, "BoolValue")
-    cfgSet("OrigFogEnd", Lighting.FogEnd, "NumberValue")
-    cfgSet("OrigBrightness", Lighting.Brightness, "NumberValue")
-    cfgSet("OrigEnvDiffuse", Lighting.EnvironmentDiffuseScale, "NumberValue")
-    cfgSet("OrigEnvSpecular", Lighting.EnvironmentSpecularScale, "NumberValue")
-end
-
-for _, e in pairs(Lighting:GetChildren()) do
-    if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect")
-    or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-        origEffects[e] = e.Enabled
-    end
-end
-
-local function saveWorkspaceState()
-    if origSaved then return end
-    origSaved = true
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") then
-            origWorkspace[obj] = {Enabled = obj.Enabled}
-        elseif obj:IsA("Decal") or obj:IsA("Texture") then
-            origWorkspace[obj] = {Transparency = obj.Transparency}
-        elseif obj:IsA("BasePart") then
-            origWorkspace[obj] = {
-                Material = obj.Material,
-                Reflectance = obj.Reflectance,
-                CastShadow = obj.CastShadow,
-            }
-        end
-    end
-end
-
-local function restoreWorkspaceState()
-    for obj, props in pairs(origWorkspace) do
-        if obj and obj.Parent then
-            pcall(function()
-                for k, v in pairs(props) do obj[k] = v end
-            end)
-        end
-    end
-    origWorkspace = {}
-    origSaved = false
-end
-
-local function processObj(obj)
-    if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") then
-        obj.Enabled = false
-    end
-    if obj:IsA("Decal") or obj:IsA("Texture") then
-        obj.Transparency = 1
-    end
-    if obj:IsA("BasePart") then
-        obj.Material = Enum.Material.Plastic
-        obj.Reflectance = 0
-        obj.CastShadow = false
-    end
-end
-
-local function watchPartProps(obj)
-    if not obj:IsA("BasePart") then return end
-    obj:GetPropertyChangedSignal("Material"):Connect(function()
-        if obj.Parent and obj.Material ~= Enum.Material.Plastic then
-            pcall(function() obj.Material = Enum.Material.Plastic end)
-        end
-    end)
-    obj:GetPropertyChangedSignal("Reflectance"):Connect(function()
-        if obj.Parent and obj.Reflectance ~= 0 then
-            pcall(function() obj.Reflectance = 0 end)
-        end
-    end)
-    obj:GetPropertyChangedSignal("CastShadow"):Connect(function()
-        if obj.Parent and obj.CastShadow then
-            pcall(function() obj.CastShadow = false end)
-        end
-    end)
-end
-
-local function doSpeedBypassOptimize()
-    Lighting.GlobalShadows = false
-    Lighting.FogEnd = 9e9
-    Lighting.Brightness = 1
-    Lighting.EnvironmentDiffuseScale = 0
-    Lighting.EnvironmentSpecularScale = 0
-    for _, e in pairs(Lighting:GetChildren()) do
-        if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect")
-        or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-            e.Enabled = false
-        end
-    end
-    for _, obj in pairs(Workspace:GetDescendants()) do pcall(function() processObj(obj) end) end
-end
-
-local function doSpeedBypassRestore()
-    Lighting.GlobalShadows = cfgGet("OrigGlobalShadows", true)
-    Lighting.FogEnd = cfgGet("OrigFogEnd", 100000)
-    Lighting.Brightness = cfgGet("OrigBrightness", 2)
-    Lighting.EnvironmentDiffuseScale = cfgGet("OrigEnvDiffuse", 1)
-    Lighting.EnvironmentSpecularScale = cfgGet("OrigEnvSpecular", 1)
-    for e, was in pairs(origEffects) do
-        if e and e.Parent then e.Enabled = was end
-    end
-    pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic end)
-end
-
-saveWorkspaceState()
-pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
-pcall(function() doSpeedBypassOptimize() end)
-for _, obj in pairs(Workspace:GetDescendants()) do watchPartProps(obj) end
-antiLagDescConn = Workspace.DescendantAdded:Connect(function(obj)
-    task.defer(function()
-        if obj and obj.Parent then
-            pcall(function() processObj(obj) end)
-            watchPartProps(obj)
-        end
-    end)
-end)
-
--- RenderStepped para speed bypass
 local speedBypassConn = nil
 local function startSpeedBypass()
     if speedBypassConn then return end
@@ -436,15 +287,80 @@ local function setSpeedBypassEnabled(state)
     speedBypassEnabled = state
     if state then
         startSpeedBypass()
-        pcall(function() doSpeedBypassOptimize() end)
     else
         stopSpeedBypass()
-        pcall(function() doSpeedBypassRestore() end)
     end
 end
 
 -- ============================================================
--- NINO TIME (STUN TIMER) - TOGGLE INDEPENDIENTE
+-- INSTA RESET (Chiraq Hub / NRHUB)
+-- ============================================================
+local RESET_GUID = "f888ee6e-c86d-46e1-93d7-0639d6635d42"
+local resetRemote = nil
+local resetCooldown = false
+
+pcall(function()
+    local orig
+    orig = hookfunction(Instance.new("RemoteEvent").FireServer, newcclosure(function(self, ...)
+        if not resetRemote and type(self.Name) == "string" and self.Name:sub(1,3) == "RE/" then
+            resetRemote = self
+        end
+        return orig(self, ...)
+    end))
+end)
+
+local function findResetRemote()
+    for _, obj in ipairs(game:GetDescendants()) do
+        if obj:IsA("RemoteEvent") and obj.Name:sub(1,3) == "RE/" then
+            resetRemote = obj
+            return true
+        end
+    end
+    return false
+end
+
+local function instaReset()
+    if resetCooldown then return end
+    if not resetRemote then
+        if not findResetRemote() then return end
+    end
+    resetCooldown = true
+    local character = LP.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    
+    if humanoid and humanoid.Health <= 0 then
+        pcall(function() resetRemote:FireServer(RESET_GUID, LP, "balloon") end)
+        resetCooldown = false
+        return
+    end
+    
+    local resetDetected = false
+    local conns = {}
+    if humanoid then
+        table.insert(conns, humanoid.Died:Connect(function() resetDetected = true end))
+        table.insert(conns, humanoid:GetPropertyChangedSignal("Health"):Connect(function() 
+            if humanoid.Health <= 0 then resetDetected = true end 
+        end))
+    end
+    if character then 
+        table.insert(conns, character.AncestryChanged:Connect(function(_, parent) 
+            if not parent then resetDetected = true end 
+        end)) 
+    end
+    
+    task.spawn(function()
+        for _ = 1, 50 do
+            if resetDetected then break end
+            pcall(function() resetRemote:FireServer(RESET_GUID, LP, "balloon") end)
+            task.wait()
+        end
+        for _, conn in ipairs(conns) do pcall(function() conn:Disconnect() end) end
+        resetCooldown = false
+    end)
+end
+
+-- ============================================================
+-- NINO TIME (STUN TIMER)
 -- ============================================================
 local stunTimerEnabled = true
 local stunTimerGuiBB = nil
@@ -649,18 +565,223 @@ local function safeSetfpscap(v) if type(setfpscap) == "function" then pcall(setf
 local function safeSethiddenproperty(obj, prop, val) if type(sethiddenproperty) == "function" then pcall(sethiddenproperty, obj, prop, val) end end
 
 -- ============================================================
+-- AUTO STEAL (NRHUB v2 - sistema avanzado)
+-- ============================================================
+local AutoSteal = {
+    Enabled = false,
+    Radius = 60,
+    Duration = 1.3,
+    IsStealing = false,
+    Data = {},
+    ProgressFill = nil,
+    ProgressText = nil,
+    RetryMax = 2,
+}
+
+local _plotIsMyCache = {}
+local _promptCache = nil
+local _promptCacheTime = 0
+local _lastHrpPos = Vector3.new(0,0,0)
+
+local function isMyPlotByName(plotName)
+    local now = tick()
+    local cached = _plotIsMyCache[plotName]
+    if cached and (now - cached.t) < 2 then return cached.val end
+    local plots = workspace:FindFirstChild("Plots")
+    if not plots then _plotIsMyCache[plotName] = {val = false, t = now}; return false end
+    local plot = plots:FindFirstChild(plotName)
+    if not plot then _plotIsMyCache[plotName] = {val = false, t = now}; return false end
+    local sign = plot:FindFirstChild("PlotSign")
+    local r = false
+    if sign then
+        local yb = sign:FindFirstChild("YourBase")
+        if yb and yb:IsA("BillboardGui") then r = yb.Enabled == true end
+    end
+    _plotIsMyCache[plotName] = {val = r, t = now}
+    return r
+end
+
+local function getPlotOf(inst)
+    local plots = workspace:FindFirstChild("Plots"); if not plots then return nil end
+    local p = inst
+    while p and p.Parent do
+        if p.Parent == plots then return p end
+        p = p.Parent
+    end
+    return nil
+end
+
+local function findNearestPrompts()
+    local now = tick()
+    if _promptCache and (now - _promptCacheTime) < 0.08 then return _promptCache end
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then _promptCache = {}; _promptCacheTime = now; return {} end
+    local plots = workspace:FindFirstChild("Plots")
+    if not plots then _promptCache = {}; _promptCacheTime = now; return {} end
+    local results = {}
+    for _, plot in ipairs(plots:GetChildren()) do
+        if not isMyPlotByName(plot.Name) then
+            local podiums = plot:FindFirstChild("AnimalPodiums")
+            if podiums then
+                for _, pod in ipairs(podiums:GetChildren()) do
+                    pcall(function()
+                        local base = pod:FindFirstChild("Base")
+                        local spawn = base and base:FindFirstChild("Spawn")
+                        if spawn then
+                            local dist = (spawn.Position - root.Position).Magnitude
+                            if dist <= AutoSteal.Radius then
+                                local att = spawn:FindFirstChild("PromptAttachment")
+                                if att then
+                                    for _, child in ipairs(att:GetChildren()) do
+                                        if child:IsA("ProximityPrompt") then
+                                            table.insert(results, {prompt = child, dist = dist, name = pod.Name})
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                end
+            end
+        end
+    end
+    table.sort(results, function(a, b) return a.dist < b.dist end)
+    _promptCache = results
+    _promptCacheTime = now
+    return results
+end
+
+RunService.Heartbeat:Connect(function()
+    local char = LP.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    if (hrp.Position - _lastHrpPos).Magnitude > 1 then
+        _lastHrpPos = hrp.Position
+        _promptCache = nil
+    end
+end)
+
+local function initStealData(prompt)
+    if AutoSteal.Data[prompt] then return end
+    AutoSteal.Data[prompt] = {hold = {}, trigger = {}, ready = true, fails = 0, useFallback = false}
+    pcall(function()
+        if getconnections then
+            for _, c in ipairs(getconnections(prompt.PromptButtonHoldBegan)) do
+                if c.Function then table.insert(AutoSteal.Data[prompt].hold, c.Function) end
+            end
+            for _, c in ipairs(getconnections(prompt.Triggered)) do
+                if c.Function then table.insert(AutoSteal.Data[prompt].trigger, c.Function) end
+            end
+            if #AutoSteal.Data[prompt].hold == 0 and #AutoSteal.Data[prompt].trigger == 0 then
+                AutoSteal.Data[prompt].useFallback = true
+            end
+        else
+            AutoSteal.Data[prompt].useFallback = true
+        end
+    end)
+end
+
+local function tryStealOnce(prompt, data)
+    local DUR = AutoSteal.Duration
+    if not data.useFallback and #data.hold > 0 then
+        pcall(function() for _, f in ipairs(data.hold) do task.spawn(f) end end)
+    end
+    task.wait(DUR + math.random() * 0.08)
+    if fireproximityprompt then
+        local ok = pcall(function() fireproximityprompt(prompt) end)
+        if ok then task.wait(0.05 + math.random() * 0.05); return true end
+    end
+    if not data.useFallback and #data.trigger > 0 then
+        local ok = pcall(function()
+            for _, f in ipairs(data.trigger) do task.spawn(f) end
+        end)
+        if ok then task.wait(0.05); return true end
+    end
+    local ok = pcall(function()
+        prompt:InputHoldBegin(); task.wait(DUR); prompt:InputHoldEnd()
+    end)
+    return ok
+end
+
+local function executeSteal(prompt, animalName)
+    if AutoSteal.IsStealing then return end
+    if not prompt or not prompt.Parent then return end
+    initStealData(prompt)
+    local data = AutoSteal.Data[prompt]
+    if not data or not data.ready then return end
+    data.ready = false
+    AutoSteal.IsStealing = true
+    local startTime = tick()
+
+    local progConn
+    progConn = RunService.Heartbeat:Connect(function()
+        if not AutoSteal.IsStealing then progConn:Disconnect(); return end
+        local prog = math.clamp((tick() - startTime) / AutoSteal.Duration, 0, 1)
+        if AutoSteal.ProgressFill then AutoSteal.ProgressFill.Size = UDim2.new(prog, 0, 1, 0) end
+        if AutoSteal.ProgressText then AutoSteal.ProgressText.Text = math.floor(prog * 100) .. "%" end
+    end)
+
+    task.spawn(function()
+        local success = false
+        local attempts = 0
+        while not success and attempts < AutoSteal.RetryMax do
+            attempts = attempts + 1
+            success = tryStealOnce(prompt, data)
+            if not success then
+                data.fails = (data.fails or 0) + 1
+                if data.fails >= 3 then data.useFallback = true end
+                task.wait(0.03)
+            end
+        end
+        AutoSteal.IsStealing = false
+        data.ready = true
+        task.wait(0.4)
+        if not AutoSteal.IsStealing and AutoSteal.ProgressFill then
+            TweenService:Create(AutoSteal.ProgressFill, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 1, 0)}):Play()
+        end
+        if AutoSteal.ProgressText then AutoSteal.ProgressText.Text = "0%" end
+        _promptCache = nil
+    end)
+end
+
+local autoStealConnection = nil
+local function startAutoSteal()
+    if autoStealConnection then return end
+    local _t = 0
+    autoStealConnection = RunService.Heartbeat:Connect(function()
+        if not AutoSteal.Enabled or AutoSteal.IsStealing then return end
+        local now = tick()
+        if now - _t < 0.05 then return end
+        _t = now
+        local prompts = findNearestPrompts()
+        if prompts and #prompts > 0 then
+            executeSteal(prompts[1].prompt, prompts[1].name)
+        end
+    end)
+end
+
+local function stopAutoSteal()
+    if autoStealConnection then autoStealConnection:Disconnect(); autoStealConnection = nil end
+    AutoSteal.IsStealing = false
+    _promptCache = nil
+    for k, v in pairs(AutoSteal.Data) do if v.ready ~= nil then v.ready = true end end
+end
+
+-- ============================================================
 -- SCRIPT PRINCIPAL NINO HUB
 -- ============================================================
 local S = {
     -- VALORES DE VELOCIDAD
-    NS = 60,      -- Velocidad Normal
-    CS = 30,      -- Velocidad Carry Mode  
-    LS = 10.1,    -- Velocidad Lagger 1
-    LS2 = 10,     -- Velocidad Lagger 2
+    NS = 60,
+    CS = 30,
+    LS = 10.1,
+    LS2 = 10,
     
     -- ESTADOS
-    speedMode = false,    -- Carry Mode activado?
-    laggerMode = 0,       -- 0=OFF, 1=Modo1(10.1), 2=Modo2(10)
+    speedMode = false,
+    laggerMode = 0,
     
     antiRagdollEnabled = false, 
     medusaCounterEnabled = false,
@@ -671,7 +792,8 @@ local S = {
     _btnAAL = nil, _bsAAL = nil, _l1AAL = nil, _l2AAL = nil,
     _btnAAR = nil, _bsAAR = nil, _l1AAR = nil, _l2AAR = nil,
     _btnBAT = nil, _bsBAT = nil, _l1BAT = nil, _l2BAT = nil,
-    _btnSPD = nil, _bsSPD = nil, _l1SPD = nil, _l2SPD = nil, -- Speed Bypass button
+    _btnSPD = nil, _bsSPD = nil, _l1SPD = nil, _l2SPD = nil,
+    _btnRST = nil, _bsRST = nil, _l1RST = nil, _l2RST = nil,
     _setPButtonActive = nil, speedCounterLabel = nil,
     batAimbotEnabled = false, batAimbotSetVisual = nil, batAimbotConn = nil,
     batAimbotSpeed = 56.5,
@@ -705,7 +827,7 @@ local S = {
     ninoTimeEnabled = true,
     setNinoTimeVisual = nil,
     Steal = {
-        AutoStealEnabled = false, StealRadius = 20, StealDuration = 0.9,
+        AutoStealEnabled = false, StealRadius = 60, StealDuration = 1.3,
         Data = {}, plotCache = {}, plotCacheTime = {}, cachedPrompts = {}, promptCacheTime = 0,
         isStealing = false, stealStartTime = nil, lastStealTick = 0,
     },
@@ -720,6 +842,7 @@ local S = {
         LaggerToggle = {kb = Enum.KeyCode.R, gp = Enum.KeyCode.DPadDown},
         AutoTPDown = {kb = Enum.KeyCode.T, gp = nil},
         SpeedBypass = {kb = Enum.KeyCode.V, gp = nil},
+        InstaReset = {kb = Enum.KeyCode.B, gp = Enum.KeyCode.ButtonL1},
     },
     Conns = {antiRag = nil, anchor = {}, progress = nil},
     moveConn = nil, speedEnabled = true, h = nil, hrp = nil,
@@ -742,13 +865,13 @@ function S.getActiveSpeed()
     if speedBypassEnabled then
         return speedBypassAmount
     elseif S.laggerMode == 1 then 
-        return S.LS      -- 10.1
+        return S.LS
     elseif S.laggerMode == 2 then 
-        return S.LS2     -- 10
+        return S.LS2
     elseif S.speedMode then 
-        return S.CS      -- 30
+        return S.CS
     else 
-        return S.NS      -- 60
+        return S.NS
     end
 end
 
@@ -913,7 +1036,6 @@ local function runDropBrainrot()
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
     
-    -- Guardar velocidad original del patrol y ponerla a 30 durante el drop
     if originalPatrolGoingSpeed == nil then
         originalPatrolGoingSpeed = patrolConfig.GoingSpeed
     end
@@ -927,7 +1049,6 @@ local function runDropBrainrot()
         if not r then
             conn:Disconnect()
             S.dropBrainrotActive = false
-            -- Restaurar velocidad original
             if originalPatrolGoingSpeed then
                 patrolConfig.GoingSpeed = originalPatrolGoingSpeed
                 originalPatrolGoingSpeed = nil
@@ -947,7 +1068,6 @@ local function runDropBrainrot()
                 r.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
             end
             S.dropBrainrotActive = false
-            -- Restaurar velocidad original
             if originalPatrolGoingSpeed then
                 patrolConfig.GoingSpeed = originalPatrolGoingSpeed
                 originalPatrolGoingSpeed = nil
@@ -1022,7 +1142,7 @@ local function stopHoldJump()
     end
 end
 
--- INFINITE JUMP TRADICIONAL
+-- INFINITE JUMP
 local infJumpConn = nil
 local infJumpHeartbeat = nil
 
@@ -1082,9 +1202,7 @@ local function stopAutoTpDown()
     if S.autoTpDownConn then S.autoTpDownConn:Disconnect(); S.autoTpDownConn = nil end
 end
 
--- ============================================================
 -- BAT AIMBOT NORMAL
--- ============================================================
 local prevAutoRotate = nil
 local aimbotConn = nil
 
@@ -1179,9 +1297,7 @@ local function setBatAimbot(state)
     saveConfig()
 end
 
--- ============================================================
 -- AIMBOT BYPASS
--- ============================================================
 local bypassState = {
     enabled = false,
     hittingCooldown = false,
@@ -1270,9 +1386,7 @@ end
 LP.CharacterAdded:Connect(setupBypassChar)
 if LP.Character then task.spawn(function() setupBypassChar(LP.Character) end) end
 
--- ============================================================
 -- PANEL FLOTANTE DEL AIMBOT BYPASS
--- ============================================================
 local bypassPanelGui = Instance.new("ScreenGui")
 bypassPanelGui.Name = "NinoBypassToggle"
 bypassPanelGui.ResetOnSpawn = false
@@ -1374,9 +1488,7 @@ bypassBtn.MouseButton1Click:Connect(function()
     saveConfig()
 end)
 
--- ============================================================
 -- BAT COUNTER
--- ============================================================
 local BAT_COUNTER_SLAP_LIST = {"Bat","Slap","Iron Slap","Gold Slap","Diamond Slap","Emerald Slap","Ruby Slap","Dark Matter Slap","Flame Slap","Nuclear Slap","Galaxy Slap","Glitched Slap"}
 
 local function findBatForCounter()
@@ -1500,11 +1612,7 @@ local function stopUnwalk()
     end
 end
 
--- ============================================================
 -- AUTO LEFT / RIGHT CON ATR AUTO PLAY (WAYPOINTS)
--- ============================================================
-
--- Waypoints
 local leftWaypoints = {
     Vector3.new(-476.85, -6.59, 94.91),
     Vector3.new(-485.55, -4.53, 100.61),
@@ -1518,7 +1626,6 @@ local rightWaypoints = {
     Vector3.new(-476.17, -6.09, 97.73),
 }
 
--- Configuración de velocidades para el patrol
 local patrolConfig = { GoingSpeed = 55, StealSpeed = 29 }
 local patrolConfigFile = "SZG_AutoPlay_Speeds.json"
 
@@ -1539,7 +1646,6 @@ local function savePatrolConfig()
 end
 loadPatrolConfig()
 
--- Variables de patrol
 local activePatrolConn = nil
 local activeWaypoints = nil
 local waypointIndex = 1
@@ -1610,7 +1716,6 @@ local function startPatrol(waypoints)
         if dist < 2.5 then
             waypointIndex = waypointIndex + 1
             if waypointIndex > #activeWaypoints then
-                -- Ruta completada
                 if activePatrolConn then activePatrolConn:Disconnect(); activePatrolConn = nil end
                 activeWaypoints = nil
                 if S.autoLeftEnabled then
@@ -1643,7 +1748,6 @@ local function stopPatrol()
     stopPatrolMovement()
 end
 
--- Funciones de AutoLeft y AutoRight actualizadas
 function startAutoLeft()
     if S.autoLeftEnabled then return end
     S.autoLeftEnabled = true
@@ -1762,8 +1866,8 @@ local function applyFPSBoost()
             elseif v:IsA("SpecialMesh") then
                 v.TextureId = ""
             elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke")
-                or v:IsA("Sparkles") or v:IsA("ParticleEmitter")
-                or v:IsA("Trail") or v:IsA("Beam") then
+                    or v:IsA("Sparkles") or v:IsA("ParticleEmitter")
+                    or v:IsA("Trail") or v:IsA("Beam") then
                 v.Enabled = false
             elseif v:IsA("SurfaceAppearance") or v:IsA("MaterialVariant") then
                 v:Destroy()
@@ -1778,9 +1882,9 @@ local function applyFPSBoost()
         for _, v in pairs(L:GetDescendants()) do
             pcall(function()
                 if v:IsA("Sky") or v:IsA("Atmosphere") or v:IsA("BloomEffect")
-                    or v:IsA("BlurEffect") or v:IsA("SunRaysEffect")
-                    or v:IsA("DepthOfFieldEffect") or v:IsA("Clouds")
-                    or v:IsA("PostEffect") or v:IsA("ColorCorrectionEffect") then
+                        or v:IsA("BlurEffect") or v:IsA("SunRaysEffect")
+                        or v:IsA("DepthOfFieldEffect") or v:IsA("Clouds")
+                        or v:IsA("PostEffect") or v:IsA("ColorCorrectionEffect") then
                     v:Destroy()
                 end
             end)
@@ -1822,110 +1926,6 @@ local function runTPFloor()
             pcall(function() hrp.AssemblyAngularVelocity = Vector3.zero end)
         end
     end)
-end
-
--- AUTO STEAL
-local getconnections = getconnections or get_signal_cons or getconnects or (syn and syn.get_signal_cons)
-
-local function isMyPlotByName(pn)
-    local ct = tick()
-    if S.Steal.plotCache[pn] and (ct - (S.Steal.plotCacheTime[pn] or 0)) < 2 then return S.Steal.plotCache[pn] end
-    local plots = workspace:FindFirstChild("Plots"); if not plots then S.Steal.plotCache[pn]=false; S.Steal.plotCacheTime[pn]=ct; return false end
-    local plot = plots:FindFirstChild(pn); if not plot then S.Steal.plotCache[pn]=false; S.Steal.plotCacheTime[pn]=ct; return false end
-    local sign = plot:FindFirstChild("PlotSign")
-    if sign then local yb = sign:FindFirstChild("YourBase"); if yb and yb:IsA("BillboardGui") then local r = yb.Enabled==true; S.Steal.plotCache[pn]=r; S.Steal.plotCacheTime[pn]=ct; return r end end
-    S.Steal.plotCache[pn]=false; S.Steal.plotCacheTime[pn]=ct; return false
-end
-
-local function findNearestPrompt()
-    local c = LP.Character; if not c then return nil end
-    local root = c:FindFirstChild("HumanoidRootPart"); if not root then return nil end
-    local ct = tick()
-    if ct - S.Steal.promptCacheTime < 0.08 and #S.Steal.cachedPrompts > 0 then
-        local np, nd = nil, math.huge
-        for _, data in ipairs(S.Steal.cachedPrompts) do
-            if data.spawn then local dist = (data.spawn.Position - root.Position).Magnitude; if dist <= S.Steal.StealRadius and dist < nd then np = data.prompt; nd = dist end end
-        end
-        if np then return np end
-    end
-    S.Steal.cachedPrompts = {}; S.Steal.promptCacheTime = ct
-    local plots = workspace:FindFirstChild("Plots"); if not plots then return nil end
-    local np, nd = nil, math.huge
-    for _, plot in ipairs(plots:GetChildren()) do
-        if isMyPlotByName(plot.Name) then continue end
-        local pods = plot:FindFirstChild("AnimalPodiums"); if not pods then continue end
-        for _, pod in ipairs(pods:GetChildren()) do
-            pcall(function()
-                local base = pod:FindFirstChild("Base"); local sp = base and base:FindFirstChild("Spawn")
-                if sp then local att = sp:FindFirstChild("PromptAttachment"); if att then
-                    for _, child in ipairs(att:GetChildren()) do
-                        if child:IsA("ProximityPrompt") then
-                            local dist = (sp.Position - root.Position).Magnitude
-                            table.insert(S.Steal.cachedPrompts, {prompt=child, spawn=sp})
-                            if dist <= S.Steal.StealRadius and dist < nd then np=child; nd=dist end
-                            break
-                        end
-                    end
-                end end
-            end)
-        end
-    end
-    return np
-end
-
-local function executeSteal(prompt)
-    local ct = tick()
-    if S.Steal.isStealing then return end
-    if not S.Steal.Data[prompt] then
-        S.Steal.Data[prompt] = {hold={}, trigger={}, ready=true}
-        pcall(function()
-            if getconnections then
-                for _, c2 in ipairs(getconnections(prompt.PromptButtonHoldBegan)) do if c2.Function then table.insert(S.Steal.Data[prompt].hold, c2.Function) end end
-                for _, c2 in ipairs(getconnections(prompt.Triggered)) do if c2.Function then table.insert(S.Steal.Data[prompt].trigger, c2.Function) end end
-            else S.Steal.Data[prompt].useFallback = true end
-        end)
-        if #S.Steal.Data[prompt].hold == 0 and #S.Steal.Data[prompt].trigger == 0 then S.Steal.Data[prompt].useFallback = true end
-    end
-    local data = S.Steal.Data[prompt]; if not data.ready then return end
-    data.ready = false; S.Steal.isStealing = true; S.Steal.stealStartTime = ct
-    if S.Conns.progress then S.Conns.progress:Disconnect() end
-    S.Conns.progress = RunService.Heartbeat:Connect(function()
-        if not S.Steal.isStealing then S.Conns.progress:Disconnect(); return end
-        local prog = math.clamp((tick() - S.Steal.stealStartTime) / S.Steal.StealDuration, 0, 1)
-        if S.progressFill then S.progressFill.Size = UDim2.new(prog, 0, 1, 0) end
-        if S.progressPct then S.progressPct.Text = math.floor(prog * 100) .. "%" end
-    end)
-    task.spawn(function()
-        local ok = false
-        pcall(function() if not data.useFallback then for _, fn in ipairs(data.hold) do task.spawn(fn) end; task.wait(S.Steal.StealDuration); for _, fn in ipairs(data.trigger) do task.spawn(fn) end; ok=true end end)
-        if not ok and fireproximityprompt then pcall(function() fireproximityprompt(prompt); ok=true end) end
-        if not ok then pcall(function() prompt:InputHoldBegin(); task.wait(S.Steal.StealDuration); prompt:InputHoldEnd() end) end
-        if S.Conns.progress then S.Conns.progress:Disconnect() end
-        if S.progressPct then S.progressPct.Text = "0%" end
-        if S.progressFill then S.progressFill.Size = UDim2.new(0,0,1,0) end
-        data.ready = true
-        S.Steal.isStealing = false
-    end)
-end
-
-local function startAutoSteal()
-    if S.stealConn then S.stealConn:Disconnect() end
-    local _stealTimer = 0
-    S.stealConn = RunService.Heartbeat:Connect(function(dt)
-        if not S.stealActive or S.Steal.isStealing then return end
-        _stealTimer = _stealTimer + dt
-        if _stealTimer < 0.02 then return end
-        _stealTimer = 0
-        local p = findNearestPrompt(); if p then executeSteal(p) end
-    end)
-end
-
-local function stopAutoSteal()
-    if S.stealConn then S.stealConn:Disconnect(); S.stealConn = nil end
-    S.Steal.isStealing = false
-    S.Steal.plotCache = {}; S.Steal.plotCacheTime = {}; S.Steal.cachedPrompts = {}
-    if S.progressPct then S.progressPct.Text = "0%" end
-    if S.progressFill then S.progressFill.Size = UDim2.new(0,0,1,0) end
 end
 
 -- NOCLIP
@@ -1978,8 +1978,8 @@ saveConfig = function()
             autoRightKey = ks(S.KB.AutoRight), autoBatKey = ks(S.KB.AutoBat),
             tpFloorKey = ks(S.KB.TPFlor), guiHideKey = ks(S.KB.GuiHide),
             speedToggleKey = ks(S.KB.SpeedToggle), laggerToggleKey = ks(S.KB.LaggerToggle),
-            grabRadius = S.Steal.StealRadius, antiRagdoll = S.antiRagdollEnabled,
-            autoStealEnabled = S.stealActive, infiniteJump = S.infJumpEnabled,
+            grabRadius = AutoSteal.Radius, antiRagdoll = S.antiRagdollEnabled,
+            autoStealEnabled = AutoSteal.Enabled, infiniteJump = S.infJumpEnabled,
             medusaCounter = S.medusaCounterEnabled, carryMode = S.speedMode,
             batAimbot = S.batAimbotEnabled,
             batAimbotSpeed = S.batAimbotSpeed,
@@ -1992,7 +1992,7 @@ saveConfig = function()
             autoTpDownHeightLimit = S.autoTpDownHeightLimit,
             autoTPDownKey = ks(S.KB.AutoTPDown),
             batCounter = S.batCounterEnabled,
-            stealDuration = S.Steal.StealDuration,
+            stealDuration = AutoSteal.Duration,
             galaxyMode = galaxyOn,
             hudScale = S.hudScale,
             bypassTogglePos = {X = bypassPanelFrame.Position.X.Offset, Y = bypassPanelFrame.Position.Y.Offset},
@@ -2003,6 +2003,7 @@ saveConfig = function()
             patrolStealSpeed = patrolConfig.StealSpeed,
             speedBypassEnabled = speedBypassEnabled,
             speedBypassKey = ks(S.KB.SpeedBypass),
+            instaResetKey = ks(S.KB.InstaReset),
         }
         local ok, data = pcall(function() return HS:JSONEncode(cfg) end)
         if ok and data then safeWritefile(S.CONFIG_FILE, data) end
@@ -2025,6 +2026,7 @@ updateFloatingButtons = function()
     if fb.autoRight then S._setPButtonActive(fb.autoRight, fb.strokeAutoRight, fb.l1AutoRight, fb.l2AutoRight, S.autoRightEnabled) end
     if fb.bat then S._setPButtonActive(fb.bat, fb.strokeBat, fb.l1Bat, fb.l2Bat, S.batAimbotEnabled) end
     if fb.speedBypass then S._setPButtonActive(fb.speedBypass, fb.strokeSpeedBypass, fb.l1SpeedBypass, fb.l2SpeedBypass, speedBypassEnabled) end
+    if fb.instaReset then S._setPButtonActive(fb.instaReset, fb.strokeInstaReset, fb.l1InstaReset, fb.l2InstaReset, false) end
     if fb.autoTPDown then S._setPButtonActive(fb.autoTPDown, fb.strokeAutoTPDown, fb.l1AutoTPDown, fb.l2AutoTPDown, S.autoTpDownEnabled) end
 end
 
@@ -2064,7 +2066,7 @@ local function makeDraggable(frame, isFloatingPanel)
 end
 
 -- ============================================================
--- INTERFAZ PRINCIPAL (NEGRO Y PÚRPURA)
+-- INTERFAZ PRINCIPAL
 -- ============================================================
 local function buildGui_createScrollingPages(rightPanel)
     local pages = {}
@@ -2448,7 +2450,6 @@ local function buildSpeedTab(pages)
         if v>0 and v<=500 then S.batAimbotSpeed = v; saveConfig() end
     end)
     
-    -- Speed Bypass toggle en la pestaña Speed
     S.setSpeedBypassVisual, _ = mkToggle("Speed", pages, "Speed Bypass", S.KB.SpeedBypass.kb, false, function(on)
         if on then
             if S.speedMode then
@@ -2518,7 +2519,6 @@ local function buildMainTab(pages)
 end
 
 local function buildMoveTab(pages)
-    -- Velocidades del patrol (Going y Steal)
     mkInput("Move", pages, "Going Speed (Auto)", patrolConfig.GoingSpeed, function(v)
         if v >= 10 and v <= 200 then patrolConfig.GoingSpeed = v; savePatrolConfig(); saveConfig() end
     end)
@@ -2672,6 +2672,7 @@ local function buildConfigTab(pages)
     local C_OFF = Color3.fromRGB(60,60,60)
     local C_WHITE = Color3.fromRGB(255,255,255)
 
+    -- Auto Steal Toggle (NRHUB style)
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -2697,18 +2698,18 @@ local function buildConfigTab(pages)
         local click = Instance.new("TextButton", card)
         click.Size = UDim2.new(1,0,1,0); click.BackgroundTransparency = 1; click.Text = ""; click.ZIndex = 3
         click.MouseButton1Click:Connect(function()
-            stealOn = not stealOn; setStealVis(stealOn); S.stealActive = stealOn
+            stealOn = not stealOn; setStealVis(stealOn); AutoSteal.Enabled = stealOn
             if stealOn then startAutoSteal() else stopAutoSteal() end
             saveConfig()
         end)
     end
 
-    S.radInput = mkInput("Config", pages, "Steal Radius", S.Steal.StealRadius, function(v)
-        if v>=1 and v<=300 then S.Steal.StealRadius = math.floor(v) end; saveConfig()
+    S.radInput = mkInput("Config", pages, "Steal Radius", AutoSteal.Radius, function(v)
+        if v >= 1 and v <= 300 then AutoSteal.Radius = math.floor(v); saveConfig() end
     end)
 
-    S.stealDurationBox = mkInput("Config", pages, "Steal Duration", S.Steal.StealDuration, function(v)
-        if v >= 0.05 and v <= 2 then S.Steal.StealDuration = v; saveConfig() end
+    S.stealDurationBox = mkInput("Config", pages, "Steal Duration", AutoSteal.Duration, function(v)
+        if v >= 0.05 and v <= 2 then AutoSteal.Duration = v; saveConfig() end
     end)
 
     mkSlider("Config", pages, "HUD Size", 0.5, 2, S.hudScale, function(v)
@@ -2725,6 +2726,47 @@ local function buildConfigTab(pages)
         local n = tonumber(v); if n and n >= 1 and n <= 1000 then S.autoTpDownHeightLimit = n; saveConfig() end
     end)
 
+    -- Insta Reset Toggle (Chiraq Hub)
+    do
+        local card = mkCard("Config", pages, 38)
+        local lbl = Instance.new("TextLabel", card)
+        lbl.Size = UDim2.new(0,120,1,0); lbl.Position = UDim2.new(0,12,0,0)
+        lbl.BackgroundTransparency = 1; lbl.Text = "Insta Reset"; lbl.TextColor3 = C_WHITE
+        lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 11
+        local pill = Instance.new("Frame", card)
+        pill.Size = UDim2.new(0,28,0,16); pill.Position = UDim2.new(1,-36,0.5,-8)
+        pill.BackgroundColor3 = C_OFF; pill.BorderSizePixel = 0
+        Instance.new("UICorner", pill).CornerRadius = UDim.new(1,0)
+        local dot = Instance.new("Frame", pill)
+        dot.Size = UDim2.new(0,12,0,12); dot.Position = UDim2.new(0,2,0.5,-6)
+        dot.BackgroundColor3 = C_WHITE; dot.BorderSizePixel = 0
+        Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
+        local resetOn = false
+        local function setResetVis(on)
+            resetOn = on
+            pill.BackgroundColor3 = on and C_ON or C_OFF
+            dot.Position = on and UDim2.new(1,-14,0.5,-6) or UDim2.new(0,2,0.5,-6)
+            dot.BackgroundColor3 = on and Color3.fromRGB(20,20,20) or C_WHITE
+        end
+        local click = Instance.new("TextButton", card)
+        click.Size = UDim2.new(1,0,1,0); click.BackgroundTransparency = 1; click.Text = ""; click.ZIndex = 3
+        click.MouseButton1Click:Connect(function()
+            instaReset()
+            setResetVis(true)
+            task.delay(0.8, function() setResetVis(false) end)
+        end)
+    end
+
+    -- Keybind para Insta Reset
+    local _, keyInstaResetBtn = mkToggle("Config", pages, "Insta Reset Keybind", S.KB.InstaReset.kb, false, function(on)
+        -- Esto es solo para mostrar el keybind, no es un toggle real
+    end, function(k, isGp)
+        if isGp then S.KB.InstaReset.gp = k; S.KB.InstaReset.kb = nil
+        else S.KB.InstaReset.kb = k; S.KB.InstaReset.gp = nil end
+        saveConfig()
+    end)
+
+    -- Hide GUI Keybind
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -2762,6 +2804,7 @@ local function buildConfigTab(pages)
         end)
     end
 
+    -- Lock UI Toggle
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -2791,6 +2834,7 @@ local function buildConfigTab(pages)
         end)
     end
 
+    -- Hide Buttons Toggle
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -2831,6 +2875,7 @@ local function buildConfigTab(pages)
         end)
     end
 
+    -- Reset Panel Button
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -3138,6 +3183,7 @@ local function buildGui()
     end
     S.miniToggleButton = buildGui_createMiniToggle(gui, showGui)
 
+    -- Keybinds
     UIS.InputBegan:Connect(function(input, gpe)
         if input.UserInputType ~= Enum.UserInputType.Keyboard and input.UserInputType ~= Enum.UserInputType.Gamepad1 then return end
         local kc = input.KeyCode
@@ -3225,6 +3271,14 @@ local function buildGui()
             if S.setSpeedBypassVisual then S.setSpeedBypassVisual(newState) end
             updateFloatingButtons()
             saveConfig()
+        elseif match(S.KB.InstaReset) then
+            instaReset()
+            if S._btnRST and S._setPButtonActive then
+                S._setPButtonActive(S._btnRST, S._bsRST, S._l1RST, S._l2RST, true)
+                task.delay(0.8, function()
+                    if S._btnRST then S._setPButtonActive(S._btnRST, S._bsRST, S._l1RST, S._l2RST, false) end
+                end)
+            end
         elseif match(S.KB.GuiHide) then
             if main.Visible then
                 main.Visible = false
@@ -3362,11 +3416,13 @@ local function createFloatingButtonPanel()
     local btnCS, bsCS, l1CS, l2CS = makePButton("CARRY", "SPD", 6)
     local btnLAG, bsLAG, l1LAG, l2LAG = makePButton("LAGGER", "MODE", 7)
     local btnSPD, bsSPD, l1SPD, l2SPD = makePButton("SPEED", "BYPASS", 9)
+    local btnRST, bsRST, l1RST, l2RST = makePButton("INSTA", "RESET", 10)
     local btnATD, bsATD, l1ATD, l2ATD = makePButton("AUTO TP", "DOWN", 8)
 
     S._btnAAL = btnAL; S._bsAAL = bsAL; S._l1AAL = l1AL; S._l2AAL = l2AL
     S._btnAAR = btnAR; S._bsAAR = bsAR; S._l1AAR = l1AR; S._l2AAR = l2AR
     S._btnBAT = btnBAT; S._bsBAT = bsBAT; S._l1BAT = l1BAT; S._l2BAT = l2BAT
+    S._btnRST = btnRST; S._bsRST = bsRST; S._l1RST = l1RST; S._l2RST = l2RST
 
     S._floatingButtons = {
         lagger = btnLAG, strokeLagger = bsLAG, l1Lagger = l1LAG, l2Lagger = l2LAG,
@@ -3375,6 +3431,7 @@ local function createFloatingButtonPanel()
         autoRight = btnAR, strokeAutoRight = bsAR, l1AutoRight = l1AR, l2AutoRight = l2AR,
         bat = btnBAT, strokeBat = bsBAT, l1Bat = l1BAT, l2Bat = l2BAT,
         speedBypass = btnSPD, strokeSpeedBypass = bsSPD, l1SpeedBypass = l1SPD, l2SpeedBypass = l2SPD,
+        instaReset = btnRST, strokeInstaReset = bsRST, l1InstaReset = l1RST, l2InstaReset = l2RST,
         autoTPDown = btnATD, strokeAutoTPDown = bsATD, l1AutoTPDown = l1ATD, l2AutoTPDown = l2ATD,
     }
 
@@ -3386,6 +3443,7 @@ local function createFloatingButtonPanel()
     setButtonActive(btnAR, bsAR, l1AR, l2AR, S.autoRightEnabled)
     setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, S.batAimbotEnabled)
     setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, speedBypassEnabled)
+    setButtonActive(btnRST, bsRST, l1RST, l2RST, false)
     setButtonActive(btnATD, bsATD, l1ATD, l2ATD, S.autoTpDownEnabled)
 
     S.autoTpDownFloatVisual = function(state)
@@ -3437,6 +3495,13 @@ local function createFloatingButtonPanel()
         setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, newState)
         if S.setSpeedBypassVisual then S.setSpeedBypassVisual(newState) end
         saveConfig()
+    end)
+    btnRST.MouseButton1Click:Connect(function()
+        setButtonActive(btnRST, bsRST, l1RST, l2RST, true)
+        instaReset()
+        task.delay(0.8, function()
+            setButtonActive(btnRST, bsRST, l1RST, l2RST, false)
+        end)
     end)
     btnAL.MouseButton1Click:Connect(function()
         local newState = not S.autoLeftEnabled
@@ -3545,6 +3610,7 @@ local function createHUD()
     topLabel.TextStrokeColor3 = Color3.fromRGB(128,0,128)
     topLabel.ClipsDescendants = true
     
+    -- Progress bar para Auto Steal
     S.progressBarFrame = Instance.new("Frame")
     S.progressBarFrame.Size = UDim2.new(0,235 * S.hudScale, 0,15 * S.hudScale)
     S.progressBarFrame.Position = UDim2.new(0.5, -235 * S.hudScale / 2, 0, 12 + 29 * S.hudScale + 5)
@@ -3575,6 +3641,10 @@ local function createHUD()
     S.progressPct.Font = Enum.Font.GothamBold
     S.progressPct.TextSize = 10.5
     S.progressPct.TextStrokeTransparency = 0.7
+    
+    -- Conectar progress bar con AutoSteal
+    AutoSteal.ProgressFill = S.progressFill
+    AutoSteal.ProgressText = S.progressPct
     
     local _hudTimer = 0
     RunService.Heartbeat:Connect(function(dt)
@@ -3632,15 +3702,16 @@ local function loadConfig()
     if cfg.laggerToggleKey then tryLoadKey(S.KB.LaggerToggle, cfg.laggerToggleKey.kb, cfg.laggerToggleKey.gp) end
     if cfg.autoTPDownKey then tryLoadKey(S.KB.AutoTPDown, cfg.autoTPDownKey.kb, cfg.autoTPDownKey.gp) end
     if cfg.speedBypassKey then tryLoadKey(S.KB.SpeedBypass, cfg.speedBypassKey.kb, cfg.speedBypassKey.gp) end
+    if cfg.instaResetKey then tryLoadKey(S.KB.InstaReset, cfg.instaResetKey.kb, cfg.instaResetKey.gp) end
 
-    if cfg.grabRadius then S.Steal.StealRadius = cfg.grabRadius; if S.radInput then S.radInput.Text = tostring(cfg.grabRadius) end end
-    if cfg.stealDuration then S.Steal.StealDuration = cfg.stealDuration; if S.stealDurationBox then S.stealDurationBox.Text = tostring(cfg.stealDuration) end end
+    if cfg.grabRadius then AutoSteal.Radius = cfg.grabRadius; if S.radInput then S.radInput.Text = tostring(cfg.grabRadius) end end
+    if cfg.stealDuration then AutoSteal.Duration = cfg.stealDuration; if S.stealDurationBox then S.stealDurationBox.Text = tostring(cfg.stealDuration) end end
 
     if cfg.autoTpDownYTarget then S.autoTpDownYTarget = cfg.autoTpDownYTarget end
     if cfg.autoTpDownHeightLimit then S.autoTpDownHeightLimit = cfg.autoTpDownHeightLimit end
 
     if cfg.antiRagdoll then toggleAntiRag(true); if S.setAntiRagVisual then S.setAntiRagVisual(true) end end
-    if cfg.autoStealEnabled then S.stealActive = true; if S.setInstaGrab then S.setInstaGrab(true) end; startAutoSteal() end
+    if cfg.autoStealEnabled then AutoSteal.Enabled = true; if S.setInstaGrab then S.setInstaGrab(true) end; startAutoSteal() end
     if cfg.infiniteJump and not cfg.holdJumpEnabled then S.infJumpEnabled = true; startInfiniteJump(); if S.setInfJumpVisual then S.setInfJumpVisual(true) end end
     if cfg.holdJumpEnabled then S.infJumpEnabled = false; if S.setInfJumpVisual then S.setInfJumpVisual(false) end; S.holdJumpEnabled = true; startHoldJump(); if S.setHoldJumpVisual then S.setHoldJumpVisual(true) end end
     if cfg.medusaCounter then S.medusaCounterEnabled = true; setupMedusaCounter(LP.Character); if S.setMedusaVisual then S.setMedusaVisual(true) end end
@@ -3719,7 +3790,7 @@ task.spawn(function()
     if S.infJumpEnabled then startInfiniteJump() end
     if S.holdJumpEnabled then startHoldJump() end
     if S.autoTpDownEnabled then startAutoTpDown() end
-    if S.stealActive then startAutoSteal() end
+    if AutoSteal.Enabled then startAutoSteal() end
     if S.fpsBoostEnabled then applyFPSBoost() end
     if galaxyOn then updateGalaxy() end
     if bypassState.enabled then startBypassAimbot() end
@@ -3752,7 +3823,7 @@ LP.CharacterAdded:Connect(function(char)
     if S.infJumpEnabled then startInfiniteJump() end
     if S.holdJumpEnabled then startHoldJump() end
     if S.autoTpDownEnabled then startAutoTpDown() end
-    if S.stealActive then startAutoSteal() end
+    if AutoSteal.Enabled then startAutoSteal() end
     if S.fpsBoostEnabled then
         task.wait(0.5); applyFPSBoost()
         if galaxyOn then task.wait(0.3); updateGalaxy() end
@@ -3784,7 +3855,7 @@ if LP.Character then
         if S.batAimbotEnabled then startBatAimbot() end
         if S.batCounterEnabled then startBatCounter() end
         if S.autoTpDownEnabled then startAutoTpDown() end
-        if S.stealActive then startAutoSteal() end
+        if AutoSteal.Enabled then startAutoSteal() end
         if S.fpsBoostEnabled then
             applyFPSBoost()
             if galaxyOn then task.wait(0.3); updateGalaxy() end
