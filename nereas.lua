@@ -13,7 +13,7 @@ blur.Size = 0
 blur.Parent = Lighting
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "NinoHubIntro"
+gui.Name = "CklHubIntro"
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
@@ -34,36 +34,36 @@ holder.Position = UDim2.new(0.5,0,0.5,0)
 holder.Size = UDim2.new(0,700,0,140)
 holder.BackgroundTransparency = 1
 
--- SOMBRA PROFUNDA (azul oscuro)
+-- SOMBRA PROFUNDA
 local shadow = Instance.new("TextLabel")
 shadow.Parent = holder
 shadow.Size = UDim2.fromScale(1,1)
 shadow.Position = UDim2.new(0,8,0,8)
 shadow.BackgroundTransparency = 1
-shadow.Text = "NRHUB"
+shadow.Text = "CKL HUB"
 shadow.Font = Enum.Font.Antique
 shadow.TextSize = 82
 shadow.TextColor3 = Color3.fromRGB(0,0,0)
 shadow.TextTransparency = 1
 
--- CAPA INTERMEDIA (AZUL ELÉCTRICO)
+-- CAPA INTERMEDIA
 local depth = Instance.new("TextLabel")
 depth.Parent = holder
 depth.Size = UDim2.fromScale(1,1)
 depth.Position = UDim2.new(0,4,0,4)
 depth.BackgroundTransparency = 1
-depth.Text = "NRHUB"
+depth.Text = "CKL HUB"
 depth.Font = Enum.Font.Antique
 depth.TextSize = 82
 depth.TextColor3 = Color3.fromRGB(0,150,255)
 depth.TextTransparency = 1
 
--- TEXTO PRINCIPAL (BLANCO)
+-- TEXTO PRINCIPAL
 local title = Instance.new("TextLabel")
 title.Parent = holder
 title.Size = UDim2.fromScale(1,1)
 title.BackgroundTransparency = 1
-title.Text = "NRHUB"
+title.Text = "CKL HUB"
 title.Font = Enum.Font.Antique
 title.TextSize = 82
 title.TextColor3 = Color3.fromRGB(255,255,255)
@@ -71,21 +71,21 @@ title.TextTransparency = 1
 title.TextStrokeTransparency = 0
 title.TextStrokeColor3 = Color3.fromRGB(0,150,255)
 
--- BORDE BRILLANTE CIAN
+-- BORDE BRILLANTE
 local stroke = Instance.new("UIStroke")
 stroke.Parent = title
 stroke.Thickness = 3
 stroke.Color = Color3.fromRGB(0,200,255)
 stroke.Transparency = 0
 
--- GLOW CIAN
+-- GLOW
 local glow = Instance.new("UIStroke")
 glow.Parent = title
 glow.Thickness = 10
 glow.Color = Color3.fromRGB(0,150,255)
 glow.Transparency = 0.75
 
--- GRADIENTE BLANCO A CIAN
+-- GRADIENTE
 local grad = Instance.new("UIGradient")
 grad.Parent = title
 grad.Rotation = 90
@@ -95,7 +95,7 @@ grad.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0,150,255))
 })
 
--- DESTELLO BLANCO
+-- DESTELLO
 local shine = Instance.new("Frame")
 shine.Parent = holder
 shine.Size = UDim2.new(0,80,1,0)
@@ -247,27 +247,25 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 -- ============================================================
--- COLORES NRHUB (azul eléctrico / cian)
+-- COLORES CKL HUB
 -- ============================================================
-local C_BG      = Color3.fromRGB(6,8,14)      -- Azul muy oscuro
-local C_PANEL   = Color3.fromRGB(10,14,22)    -- Panel azul profundo
-local C_ROW     = Color3.fromRGB(16,20,30)    -- Fila azul grisaceo
-local C_BORDER  = Color3.fromRGB(30,60,120)   -- Borde azul medio
-local C_BORDER2 = Color3.fromRGB(40,80,150)   -- Borde azul brillante
-local C_HEADER  = Color3.fromRGB(8,10,18)     -- Header azul oscuro
-local C_ACCENT  = Color3.fromRGB(180,220,255) -- Azul muy claro
-local C_ACCENT2 = Color3.fromRGB(80,180,255)  -- Azul eléctrico
-local C_DIM     = Color3.fromRGB(80,100,140)  -- Azul desaturado
+local C_BG      = Color3.fromRGB(6,8,14)
+local C_PANEL   = Color3.fromRGB(10,14,22)
+local C_ROW     = Color3.fromRGB(16,20,30)
+local C_BORDER  = Color3.fromRGB(30,60,120)
+local C_BORDER2 = Color3.fromRGB(40,80,150)
+local C_HEADER  = Color3.fromRGB(8,10,18)
+local C_ACCENT  = Color3.fromRGB(180,220,255)
+local C_ACCENT2 = Color3.fromRGB(80,180,255)
+local C_DIM     = Color3.fromRGB(80,100,140)
 local C_WHITE   = Color3.fromRGB(255,255,255)
-local C_ON_BG   = Color3.fromRGB(20,60,140)   -- Azul intenso (toggle on)
-local C_OFF_BG  = Color3.fromRGB(22,28,40)    -- Azul apagado
-local C_NR      = Color3.fromRGB(0,150,255)   -- NR azul principal
-local C_CYAN    = Color3.fromRGB(0,200,255)   -- Cian eléctrico
-local C_BLUE_DARK = Color3.fromRGB(0,80,160)  -- Azul oscuro
-local C_BLUE_LIGHT = Color3.fromRGB(100,200,255) -- Azul claro
+local C_ON_BG   = Color3.fromRGB(20,60,140)
+local C_OFF_BG  = Color3.fromRGB(22,28,40)
+local C_NR      = Color3.fromRGB(0,150,255)
+local C_CYAN    = Color3.fromRGB(0,200,255)
 
 -- ============================================================
--- SPEED BYPASS (NITHER)
+-- SPEED BYPASS
 -- ============================================================
 local speedBypassEnabled = false
 local speedBypassToggleKey = Enum.KeyCode.V
@@ -313,80 +311,46 @@ local function setSpeedBypassEnabled(state)
 end
 
 -- ============================================================
--- ANTI BAT - Fling defensif (NRHUB)
+-- ANTI BAT WIDGET (NRHUB original)
 -- ============================================================
-local AB = {
-    active = false,
-    conn = nil,
-    pct = 20,
-    MAXPOWER = 5000,
-    FORCE = 1000,
-    widget = nil,
-    statusLbl = nil,
-    pill = nil,
-    pillStk = nil,
-    ball = nil,
-    box = nil,
-}
+local antiBatActive = false
+local antiBatConn = nil
+local antiBatPower = 1500
 
-function AB.power()
-    return AB.FORCE
-end
-
-function AB.start()
-    if AB.conn then AB.conn:Disconnect() end
-    AB.conn = RunService.Heartbeat:Connect(function()
-        if not AB.active then return end
-        local c = LP.Character
-        local root = c and c:FindFirstChild("HumanoidRootPart")
+local function startAntiBat()
+    if antiBatConn then return end
+    antiBatConn = RunService.Heartbeat:Connect(function()
+        if not antiBatActive then return end
+        local char = LP.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
         if not root or not root.Parent then return end
         local orig = root.Velocity
-        root.Velocity = Vector3.new(AB.FORCE, root.Velocity.Y, AB.FORCE)
+        root.Velocity = Vector3.new(antiBatPower, root.Velocity.Y, antiBatPower)
         RunService.RenderStepped:Wait()
         local r2 = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
         if r2 and r2.Parent then r2.Velocity = orig end
     end)
 end
 
-function AB.stop()
-    if AB.conn then AB.conn:Disconnect(); AB.conn = nil end
+local function stopAntiBat()
+    if antiBatConn then antiBatConn:Disconnect(); antiBatConn = nil end
 end
 
-function AB.refresh()
-    if not AB.statusLbl then return end
-    local on = AB.active
-    AB.statusLbl.Text = on and "ENABLED" or "DISABLED"
-    AB.statusLbl.TextColor3 = on and C_ACCENT2 or Color3.fromRGB(150,95,95)
-    if AB.pill then 
-        TweenService:Create(AB.pill, TweenInfo.new(0.2), {BackgroundColor3 = on and C_ON_BG or C_OFF_BG}):Play() 
-    end
-    if AB.pillStk then 
-        TweenService:Create(AB.pillStk, TweenInfo.new(0.2), {Color = on and C_NR or Color3.fromRGB(80,28,30)}):Play() 
-    end
-    if AB.ball then 
-        TweenService:Create(AB.ball, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Position = on and UDim2.new(1,-15,0.5,-5) or UDim2.new(0,4,0.5,-5),
-            BackgroundColor3 = on and C_WHITE or Color3.fromRGB(110,80,80)
-        }):Play()
-    end
+local function toggleAntiBat()
+    antiBatActive = not antiBatActive
+    if antiBatActive then startAntiBat() else stopAntiBat() end
 end
 
-function AB.toggle()
-    AB.active = not AB.active
-    if AB.active then AB.start() else AB.stop() end
-    AB.refresh()
-end
-
-LP.CharacterAdded:Connect(function() 
-    if AB.active then 
-        AB.stop() 
-        task.wait(0.2) 
-        AB.start() 
-    end 
+LP.CharacterAdded:Connect(function()
+    if antiBatActive then
+        stopAntiBat()
+        task.wait(0.2)
+        startAntiBat()
+    end
 end)
 
 -- ============================================================
--- INSTA RESET (Chiraq Hub / NRHUB)
+-- INSTA RESET
 -- ============================================================
 local RESET_GUID = "f888ee6e-c86d-46e1-93d7-0639d6635d42"
 local resetRemote = nil
@@ -594,7 +558,7 @@ LP.CharacterAdded:Connect(function(char)
 end)
 
 -- ============================================================
--- GALAXY MODE (estilo NR)
+-- GALAXY MODE
 -- ============================================================
 
 local galaxyOn = false
@@ -863,19 +827,11 @@ local function stopAutoSteal()
 end
 
 -- ============================================================
--- SCRIPT PRINCIPAL NINO HUB
+-- SCRIPT PRINCIPAL CKL HUB
 -- ============================================================
 local S = {
-    -- VALORES DE VELOCIDAD
-    NS = 60,
-    CS = 30,
-    LS = 10.1,
-    LS2 = 10,
-    
-    -- ESTADOS
-    speedMode = false,
-    laggerMode = 0,
-    
+    NS = 60, CS = 30, LS = 10.1, LS2 = 10,
+    speedMode = false, laggerMode = 0,
     antiRagdollEnabled = false, 
     medusaCounterEnabled = false,
     medusaAutoReset = true,
@@ -921,6 +877,8 @@ local S = {
     setHoldJumpVisual = nil,
     ninoTimeEnabled = true,
     setNinoTimeVisual = nil,
+    mobileButtonSize = 1,
+    tauntActive = false,
     Steal = {
         AutoStealEnabled = false, StealRadius = 60, StealDuration = 1.3,
         Data = {}, plotCache = {}, plotCacheTime = {}, cachedPrompts = {}, promptCacheTime = 0,
@@ -951,12 +909,11 @@ local S = {
     },
     IS_TOUCH_DEVICE = UIS.TouchEnabled,
     IS_MOBILE = UIS.TouchEnabled and not UIS.KeyboardEnabled,
-    CONFIG_FILE = "NinohubPC.json",
+    CONFIG_FILE = "CklHubConfig.json",
     _floatingButtons = {},
     BAT_HIT_RANGE = 16,
 }
 
--- FUNCIÓN PARA OBTENER VELOCIDAD ACTIVA
 function S.getActiveSpeed()
     if speedBypassEnabled then
         return speedBypassAmount
@@ -1482,9 +1439,9 @@ end
 LP.CharacterAdded:Connect(setupBypassChar)
 if LP.Character then task.spawn(function() setupBypassChar(LP.Character) end) end
 
--- PANEL FLOTANTE DEL AIMBOT BYPASS (estilo NR)
+-- PANEL FLOTANTE DEL AIMBOT BYPASS
 local bypassPanelGui = Instance.new("ScreenGui")
-bypassPanelGui.Name = "NinoBypassToggle"
+bypassPanelGui.Name = "CklBypassToggle"
 bypassPanelGui.ResetOnSpawn = false
 bypassPanelGui.DisplayOrder = 9
 bypassPanelGui.IgnoreGuiInset = true
@@ -1708,7 +1665,7 @@ local function stopUnwalk()
     end
 end
 
--- AUTO LEFT / RIGHT CON ATR AUTO PLAY (WAYPOINTS)
+-- AUTO LEFT / RIGHT CON WAYPOINTS
 local leftWaypoints = {
     Vector3.new(-476.85, -6.59, 94.91),
     Vector3.new(-485.55, -4.53, 100.61),
@@ -1723,7 +1680,7 @@ local rightWaypoints = {
 }
 
 local patrolConfig = { GoingSpeed = 55, StealSpeed = 29 }
-local patrolConfigFile = "SZG_AutoPlay_Speeds.json"
+local patrolConfigFile = "CklAutoPlay.json"
 
 local function loadPatrolConfig()
     if not safeIsfile(patrolConfigFile) then return end
@@ -1757,7 +1714,7 @@ local function ensurePatrolProxy()
     if not patrolProxy or patrolProxy.Parent ~= char then
         if patrolProxy then patrolProxy:Destroy() end
         patrolProxy = Instance.new("Part")
-        patrolProxy.Name = "Atr_AutoPlayProxy"
+        patrolProxy.Name = "Ckl_AutoPlayProxy"
         patrolProxy.Size = Vector3.new(1,1,1)
         patrolProxy.Transparency = 1
         patrolProxy.CanCollide = false
@@ -1868,7 +1825,7 @@ function stopAutoRight()
     stopPatrol()
 end
 
--- MEDUSA COUNTER con Medusa Auto Reset
+-- MEDUSA COUNTER
 local function findMedusa()
     local char = LP.Character
     if not char then return nil end
@@ -2097,6 +2054,7 @@ saveConfig = function()
             stealDuration = AutoSteal.Duration,
             galaxyMode = galaxyOn,
             hudScale = S.hudScale,
+            mobileButtonSize = S.mobileButtonSize,
             bypassTogglePos = {X = bypassPanelFrame.Position.X.Offset, Y = bypassPanelFrame.Position.Y.Offset},
             floatingPanelPos = S.floatingPanelFrame and {X = S.floatingPanelFrame.Position.X.Offset, Y = S.floatingPanelFrame.Position.Y.Offset} or nil,
             bypassAimbotEnabled = bypassState.enabled,
@@ -2106,7 +2064,7 @@ saveConfig = function()
             speedBypassEnabled = speedBypassEnabled,
             speedBypassKey = ks(S.KB.SpeedBypass),
             instaResetKey = ks(S.KB.InstaReset),
-            antiBatEnabled = AB.active,
+            antiBatEnabled = antiBatActive,
             antiBatKey = ks(S.KB.AntiBat),
         }
         local ok, data = pcall(function() return HS:JSONEncode(cfg) end)
@@ -2131,7 +2089,7 @@ updateFloatingButtons = function()
     if fb.bat then S._setPButtonActive(fb.bat, fb.strokeBat, fb.l1Bat, fb.l2Bat, S.batAimbotEnabled) end
     if fb.speedBypass then S._setPButtonActive(fb.speedBypass, fb.strokeSpeedBypass, fb.l1SpeedBypass, fb.l2SpeedBypass, speedBypassEnabled) end
     if fb.instaReset then S._setPButtonActive(fb.instaReset, fb.strokeInstaReset, fb.l1InstaReset, fb.l2InstaReset, false) end
-    if fb.antiBat then S._setPButtonActive(fb.antiBat, fb.strokeAntiBat, fb.l1AntiBat, fb.l2AntiBat, AB.active) end
+    if fb.antiBat then S._setPButtonActive(fb.antiBat, fb.strokeAntiBat, fb.l1AntiBat, fb.l2AntiBat, antiBatActive) end
     if fb.autoTPDown then S._setPButtonActive(fb.autoTPDown, fb.strokeAutoTPDown, fb.l1AutoTPDown, fb.l2AutoTPDown, S.autoTpDownEnabled) end
 end
 
@@ -2171,7 +2129,7 @@ local function makeDraggable(frame, isFloatingPanel)
 end
 
 -- ============================================================
--- INTERFAZ PRINCIPAL (ESTILO NRHUB - AZUL ELÉCTRICO)
+-- FUNCIONES DE UI (estilo NRHUB)
 -- ============================================================
 local function addCorner(inst, r) local c=Instance.new("UICorner",inst); c.CornerRadius=UDim.new(0,r or 8); return c end
 local function addStroke(inst, col, th, tr) local s=Instance.new("UIStroke",inst); s.Color=col; s.Thickness=th or 1; s.Transparency=tr or 0; return s end
@@ -2180,11 +2138,10 @@ local function addGradient(inst, c1, c2, rot)
     g.Color=ColorSequence.new(c1,c2); g.Rotation=rot or 0; return g
 end
 
--- Fondo con eclipse azul (estilo NRHUB)
 local function addEclipse(parent, corner)
     local z = parent.ZIndex or 1
     local sky = Instance.new("Frame", parent)
-    sky.Name = "NinoEclipse"
+    sky.Name = "CklEclipse"
     sky.Size = UDim2.new(1,0,1,0); sky.Position = UDim2.new(0,0,0,0)
     sky.BackgroundColor3 = Color3.fromRGB(2,4,12); sky.BorderSizePixel = 0; sky.ZIndex = z
     sky.ClipsDescendants = true; addCorner(sky, corner or 14)
@@ -2195,12 +2152,11 @@ local function addEclipse(parent, corner)
         ColorSequenceKeypoint.new(1, Color3.fromRGB(10,20,45)),
     })
     skyGrad.Rotation = 90
-    -- Anillo azul eléctrico
     local halo = Instance.new("Frame", sky)
-    halo.Name = "NinoHalo"
+    halo.Name = "CklHalo"
     halo.AnchorPoint = Vector2.new(0.5,0.5)
     halo.Position = UDim2.new(0.5,0,0.42,0)
-    halo.Size = UDim2.new(0,150,0,150); halo.BackgroundColor3 = C_BLUE_DARK
+    halo.Size = UDim2.new(0,150,0,150); halo.BackgroundColor3 = Color3.fromRGB(0,80,160)
     halo.BorderSizePixel = 0; halo.ZIndex = z
     Instance.new("UICorner", halo).CornerRadius = UDim.new(1,0)
     local haloGrad = Instance.new("UIGradient", halo)
@@ -2211,9 +2167,8 @@ local function addEclipse(parent, corner)
         NumberSequenceKeypoint.new(1, 1),
     })
     haloGrad.Rotation = 90
-    -- Sol negro central
     local sun = Instance.new("Frame", sky)
-    sun.Name = "NinoSun"
+    sun.Name = "CklSun"
     sun.AnchorPoint = Vector2.new(0.5,0.5)
     sun.Position = UDim2.new(0.5,0,0.42,0)
     sun.Size = UDim2.new(0,74,0,74); sun.BackgroundColor3 = Color3.fromRGB(4,6,14)
@@ -2221,7 +2176,6 @@ local function addEclipse(parent, corner)
     Instance.new("UICorner", sun).CornerRadius = UDim.new(1,0)
     local sunStk = Instance.new("UIStroke", sun)
     sunStk.Color = C_CYAN; sunStk.Thickness = 1.5; sunStk.Transparency = 0.2
-    -- Pulse animation
     task.spawn(function()
         while halo and halo.Parent do
             TweenService:Create(halo, TweenInfo.new(1.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Size = UDim2.new(0,182,0,182)}):Play()
@@ -2235,7 +2189,7 @@ local function addEclipse(parent, corner)
     return sky
 end
 
--- Barra de progreso para Auto Steal (estilo NR)
+-- Barra de progreso para Auto Steal
 local function createStealProgressBar()
     local bar = Instance.new("Frame", S.floatingPanelGui or LP.PlayerGui)
     bar.Size = UDim2.new(0,250,0,84)
@@ -2292,7 +2246,7 @@ local function createStealProgressBar()
 end
 
 -- ============================================================
--- BUILD GUI PRINCIPAL (ESTILO NRHUB)
+-- INTERFAZ PRINCIPAL
 -- ============================================================
 local function buildGui_createScrollingPages(rightPanel)
     local pages = {}
@@ -2603,7 +2557,7 @@ local function buildGui_createMiniToggle(gui, showGuiFn)
     miniMainText.Size = UDim2.new(1,-38,1,0)
     miniMainText.Position = UDim2.new(0,32,0,0)
     miniMainText.BackgroundTransparency = 1
-    miniMainText.Text = "NRHUB"
+    miniMainText.Text = "CKL HUB"
     miniMainText.TextColor3 = C_ACCENT2
     miniMainText.Font = Enum.Font.GothamBlack
     miniMainText.TextSize = 14
@@ -2742,12 +2696,12 @@ local function buildMainTab(pages)
         saveConfig()
     end, nil)
     
-    -- Anti Bat Toggle (Fling Defense)
-    local setAntiBatVisual, _ = mkToggle("Main", pages, "Anti Bat (Fling)", S.KB.AntiBat.kb, false, function(on)
+    -- Anti Bat Toggle (NRHUB original widget)
+    local setAntiBatVisual, _ = mkToggle("Main", pages, "Anti Bat", S.KB.AntiBat.kb, false, function(on)
         if on then
-            AB.toggle()
+            if not antiBatActive then toggleAntiBat() end
         else
-            if AB.active then AB.toggle() end
+            if antiBatActive then toggleAntiBat() end
         end
         updateFloatingButtons()
         saveConfig()
@@ -2756,6 +2710,24 @@ local function buildMainTab(pages)
         else S.KB.AntiBat.kb = k; S.KB.AntiBat.gp = nil end
         saveConfig()
     end)
+
+    -- Taunt toggle
+    local tauntVisual, _ = mkToggle("Main", pages, "Spam Chat (CKL HUB ON TOP)", nil, false, function(on)
+        S.tauntActive = on
+        if on then
+            task.spawn(function()
+                while S.tauntActive do
+                    pcall(function()
+                        local tcs = game:GetService("TextChatService")
+                        local ch = tcs and tcs.TextChannels and tcs.TextChannels:FindFirstChild("RBXGeneral")
+                        if ch then ch:SendAsync("CKL HUB ON TOP") end
+                    end)
+                    task.wait(2)
+                end
+            end)
+        end
+        saveConfig()
+    end, nil)
 end
 
 local function buildMoveTab(pages)
@@ -2961,6 +2933,20 @@ local function buildConfigTab(pages)
         saveConfig()
     end)
 
+    mkSlider("Config", pages, "Mobile Buttons Size", 0.5, 1.5, S.mobileButtonSize, function(v)
+        S.mobileButtonSize = v
+        saveConfig()
+        -- Notificar a los botones móviles para que se actualicen
+        pcall(function()
+            for _, container in ipairs(mobileContainers or {}) do
+                if container and container.Parent then
+                    local scale = container:FindFirstChild("UIScale")
+                    if scale then scale.Scale = v end
+                end
+            end
+        end)
+    end)
+
     mkInput("Config", pages, "TP Y Target", S.autoTpDownYTarget, function(v)
         local n = tonumber(v); if n and n >= -500 and n <= 500 then S.autoTpDownYTarget = n; saveConfig() end
     end)
@@ -3157,11 +3143,11 @@ local function buildGui()
     local TOTAL_H  = 482
     local SIDEBAR_W = 155
 
-    local old = game:GetService("CoreGui"):FindFirstChild("Ninohub")
+    local old = game:GetService("CoreGui"):FindFirstChild("CklHub")
     if old then old:Destroy() end
 
     local gui = Instance.new("ScreenGui")
-    gui.Name = "Ninohub"
+    gui.Name = "CklHub"
     gui.ResetOnSpawn = false
     gui.DisplayOrder = 100
     gui.IgnoreGuiInset = true
@@ -3183,7 +3169,6 @@ local function buildGui()
     S.mainMenuFrame = main
     makeDraggable(main, false)
     
-    -- Fondo con eclipse
     addEclipse(main, 12)
 
     local sidebar = Instance.new("Frame", main)
@@ -3243,7 +3228,7 @@ local function buildGui()
     titleLabel.Size = UDim2.new(1,-16,0,32)
     titleLabel.Position = UDim2.new(0,8,0,10)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = "NRHUB"
+    titleLabel.Text = "CKL HUB"
     titleLabel.TextColor3 = C_WHITE
     titleLabel.Font = Enum.Font.GothamBlack
     titleLabel.TextSize = 22
@@ -3255,7 +3240,7 @@ local function buildGui()
     logoBadge.BackgroundColor3 = Color3.fromRGB(0,0,0)
     logoBadge.BackgroundTransparency = 0.2
     logoBadge.BorderSizePixel = 0
-    logoBadge.Text = "NR"
+    logoBadge.Text = "CK"
     logoBadge.TextColor3 = C_WHITE
     logoBadge.Font = Enum.Font.GothamBlack
     logoBadge.TextSize = 70
@@ -3269,7 +3254,7 @@ local function buildGui()
     subLabel.Size = UDim2.new(1,-16,0,16)
     subLabel.Position = UDim2.new(0,8,0,42)
     subLabel.BackgroundTransparency = 1
-    subLabel.Text = "NRHUB"
+    subLabel.Text = "CKL HUB"
     subLabel.TextColor3 = C_DIM
     subLabel.Font = Enum.Font.Gotham
     subLabel.TextSize = 10
@@ -3523,7 +3508,7 @@ local function buildGui()
                 end)
             end
         elseif match(S.KB.AntiBat) then
-            AB.toggle()
+            toggleAntiBat()
             updateFloatingButtons()
             saveConfig()
         elseif match(S.KB.GuiHide) then
@@ -3564,11 +3549,13 @@ local function buildGui()
 end
 
 -- ============================================================
--- PANEL FLOTANTE PRINCIPAL (ESTILO NR)
+-- PANEL FLOTANTE PRINCIPAL
 -- ============================================================
+local mobileContainers = {}
+
 local function createFloatingButtonPanel()
     local panelGui = Instance.new("ScreenGui")
-    panelGui.Name = "Ninohub_FloatingPanel"; panelGui.ResetOnSpawn = false
+    panelGui.Name = "CklHub_FloatingPanel"; panelGui.ResetOnSpawn = false
     panelGui.IgnoreGuiInset = true; panelGui.DisplayOrder = 8
     if not pcall(function() panelGui.Parent = game:GetService("CoreGui") end) then
         panelGui.Parent = LP:WaitForChild("PlayerGui")
@@ -3640,6 +3627,10 @@ local function createFloatingButtonPanel()
             t1.Position = UDim2.new(0,0,0,0)
             t1.TextSize = 13
         end
+        -- Escala para botones móviles
+        local btnScale = Instance.new("UIScale", btn)
+        btnScale.Scale = S.mobileButtonSize
+        table.insert(mobileContainers, btn)
         return btn, stroke, t1, t2
     end
     
@@ -3692,7 +3683,7 @@ local function createFloatingButtonPanel()
     setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, S.batAimbotEnabled)
     setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, speedBypassEnabled)
     setButtonActive(btnRST, bsRST, l1RST, l2RST, false)
-    setButtonActive(btnAB, bsAB, l1AB, l2AB, AB.active)
+    setButtonActive(btnAB, bsAB, l1AB, l2AB, antiBatActive)
     setButtonActive(btnATD, bsATD, l1ATD, l2ATD, S.autoTpDownEnabled)
 
     S.autoTpDownFloatVisual = function(state)
@@ -3753,8 +3744,8 @@ local function createFloatingButtonPanel()
         end)
     end)
     btnAB.MouseButton1Click:Connect(function()
-        AB.toggle()
-        setButtonActive(btnAB, bsAB, l1AB, l2AB, AB.active)
+        toggleAntiBat()
+        setButtonActive(btnAB, bsAB, l1AB, l2AB, antiBatActive)
         updateFloatingButtons()
         saveConfig()
     end)
@@ -3829,11 +3820,11 @@ local function createFloatingButtonPanel()
 end
 
 -- ============================================================
--- HUD PRINCIPAL (ESTILO NR)
+-- HUD PRINCIPAL
 -- ============================================================
 local function createHUD()
     local HudGui = Instance.new("ScreenGui")
-    HudGui.Name = "Ninohub_PhazeHUD"; HudGui.ResetOnSpawn = false
+    HudGui.Name = "CklHub_HUD"; HudGui.ResetOnSpawn = false
     HudGui.IgnoreGuiInset = true; HudGui.DisplayOrder = 15
     if not pcall(function() HudGui.Parent = game:GetService("CoreGui") end) then
         HudGui.Parent = LP:WaitForChild("PlayerGui")
@@ -3857,12 +3848,12 @@ local function createHUD()
     topLabel.Size = UDim2.new(1,-10,1,0)
     topLabel.Position = UDim2.new(0,5,0,0)
     topLabel.BackgroundTransparency = 1
-    topLabel.Text = "NRHUB | FPS: 0 PING: 0ms"
+    topLabel.Text = "CKL HUB | FPS: 0 PING: 0ms"
     topLabel.TextColor3 = C_ACCENT2
     topLabel.Font = Enum.Font.GothamBold
     topLabel.TextSize = 12.5
     topLabel.TextStrokeTransparency = 0.3
-    topLabel.TextStrokeColor3 = C_BLUE_DARK
+    topLabel.TextStrokeColor3 = Color3.fromRGB(0,80,160)
     topLabel.ClipsDescendants = true
     
     S.progressBarFrame = Instance.new("Frame")
@@ -3900,7 +3891,6 @@ local function createHUD()
     AutoSteal.ProgressFill = S.progressFill
     AutoSteal.ProgressText = S.progressPct
     
-    -- Barra de progreso flotante para Auto Steal
     createStealProgressBar()
     
     local _hudTimer = 0
@@ -3910,7 +3900,7 @@ local function createHUD()
             _hudTimer = 0
             local ping = 0
             pcall(function() ping = math.floor(LP:GetNetworkPing()*1000) end)
-            topLabel.Text = "NRHUB | FPS: "..S.currentFPS.." PING: "..ping.."ms"
+            topLabel.Text = "CKL HUB | FPS: "..S.currentFPS.." PING: "..ping.."ms"
         end
     end)
 end
@@ -3935,15 +3925,23 @@ local function loadConfig()
     if cfg.laggerSpeed2 then S.LS2 = cfg.laggerSpeed2; if S.lagger2Box then S.lagger2Box.Text = tostring(S.LS2) end end
     if cfg.laggerMode then S.laggerMode = cfg.laggerMode end
     if cfg.hudScale then S.hudScale = cfg.hudScale; updateHudScale() end
+    if cfg.mobileButtonSize then S.mobileButtonSize = cfg.mobileButtonSize; 
+        pcall(function()
+            for _, container in ipairs(mobileContainers) do
+                local scale = container:FindFirstChild("UIScale")
+                if scale then scale.Scale = S.mobileButtonSize end
+            end
+        end)
+    end
     if cfg.batAimbotSpeed then S.batAimbotSpeed = cfg.batAimbotSpeed end
     if cfg.patrolGoingSpeed then patrolConfig.GoingSpeed = cfg.patrolGoingSpeed end
     if cfg.patrolStealSpeed then patrolConfig.StealSpeed = cfg.patrolStealSpeed end
     if cfg.speedBypassEnabled then speedBypassEnabled = cfg.speedBypassEnabled; setSpeedBypassEnabled(speedBypassEnabled) end
     if cfg.antiBatEnabled then 
-        AB.active = cfg.antiBatEnabled
-        if AB.active then AB.start() else AB.stop() end
-        AB.refresh()
+        antiBatActive = cfg.antiBatEnabled
+        if antiBatActive then startAntiBat() else stopAntiBat() end
     end
+    if cfg.tauntActive then S.tauntActive = cfg.tauntActive end
 
     if S.laggerMode == 0 then S.laggerMode = 1 end
 
@@ -4037,7 +4035,7 @@ local function loadConfig()
 
     local fb = S._floatingButtons
     if fb.lagger then updateLaggerButtonVisual() end
-    if fb.antiBat then setButtonActive(fb.antiBat, fb.strokeAntiBat, fb.l1AntiBat, fb.l2AntiBat, AB.active) end
+    if fb.antiBat then setButtonActive(fb.antiBat, fb.strokeAntiBat, fb.l1AntiBat, fb.l2AntiBat, antiBatActive) end
 
     S.restartMovement()
     updateFloatingButtons()
@@ -4063,7 +4061,19 @@ task.spawn(function()
     if S.autoLeftEnabled then startAutoLeft() end
     if S.autoRightEnabled then startAutoRight() end
     if speedBypassEnabled then setSpeedBypassEnabled(true) end
-    if AB.active then AB.start() end
+    if antiBatActive then startAntiBat() end
+    if S.tauntActive then
+        task.spawn(function()
+            while S.tauntActive do
+                pcall(function()
+                    local tcs = game:GetService("TextChatService")
+                    local ch = tcs and tcs.TextChannels and tcs.TextChannels:FindFirstChild("RBXGeneral")
+                    if ch then ch:SendAsync("CKL HUB ON TOP") end
+                end)
+                task.wait(2)
+            end
+        end)
+    end
 end)
 
 if LP.Character then task.wait(0.3); S.setupSpeedBillboard(LP.Character) end
@@ -4102,7 +4112,7 @@ LP.CharacterAdded:Connect(function(char)
         createStunTimerBillboard()
     end
     if speedBypassEnabled then setSpeedBypassEnabled(true) end
-    if AB.active then AB.start() end
+    if antiBatActive then startAntiBat() end
 end)
 
 if LP.Character then
@@ -4135,6 +4145,6 @@ if LP.Character then
             createStunTimerBillboard()
         end
         if speedBypassEnabled then setSpeedBypassEnabled(true) end
-        if AB.active then AB.start() end
+        if antiBatActive then startAntiBat() end
     end)
 end
