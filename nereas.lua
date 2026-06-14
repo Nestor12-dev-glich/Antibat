@@ -247,7 +247,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 -- ============================================================
--- SPEED BYPASS (NITHER) - simplificado
+-- SPEED BYPASS (NITHER)
 -- ============================================================
 local speedBypassEnabled = false
 local speedBypassToggleKey = Enum.KeyCode.V
@@ -291,6 +291,79 @@ local function setSpeedBypassEnabled(state)
         stopSpeedBypass()
     end
 end
+
+-- ============================================================
+-- ANTI BAT - Fling defensif (NRHUB)
+-- ============================================================
+local AB = {
+    active = false,
+    conn = nil,
+    pct = 20,
+    MAXPOWER = 5000,
+    FORCE = 1000,
+    widget = nil,
+    statusLbl = nil,
+    pill = nil,
+    pillStk = nil,
+    ball = nil,
+    box = nil,
+}
+
+function AB.power()
+    return AB.FORCE
+end
+
+function AB.start()
+    if AB.conn then AB.conn:Disconnect() end
+    AB.conn = RunService.Heartbeat:Connect(function()
+        if not AB.active then return end
+        local c = LP.Character
+        local root = c and c:FindFirstChild("HumanoidRootPart")
+        if not root or not root.Parent then return end
+        local orig = root.Velocity
+        root.Velocity = Vector3.new(AB.FORCE, root.Velocity.Y, AB.FORCE)
+        RunService.RenderStepped:Wait()
+        local r2 = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+        if r2 and r2.Parent then r2.Velocity = orig end
+    end)
+end
+
+function AB.stop()
+    if AB.conn then AB.conn:Disconnect(); AB.conn = nil end
+end
+
+function AB.refresh()
+    if not AB.statusLbl then return end
+    local on = AB.active
+    AB.statusLbl.Text = on and "ENABLED" or "DISABLED"
+    AB.statusLbl.TextColor3 = on and Color3.fromRGB(80, 180, 255) or Color3.fromRGB(150, 95, 95)
+    if AB.pill then 
+        TweenService:Create(AB.pill, TweenInfo.new(0.2), {BackgroundColor3 = on and Color3.fromRGB(20, 60, 140) or Color3.fromRGB(22, 22, 28)}):Play() 
+    end
+    if AB.pillStk then 
+        TweenService:Create(AB.pillStk, TweenInfo.new(0.2), {Color = on and Color3.fromRGB(80, 180, 255) or Color3.fromRGB(80, 28, 30)}):Play() 
+    end
+    if AB.ball then 
+        TweenService:Create(AB.ball, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = on and UDim2.new(1, -15, 0.5, -5) or UDim2.new(0, 4, 0.5, -5),
+            BackgroundColor3 = on and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(110, 80, 80)
+        }):Play()
+    end
+end
+
+function AB.toggle()
+    AB.active = not AB.active
+    if AB.active then AB.start() else AB.stop() end
+    AB.refresh()
+end
+
+LP.CharacterAdded:Connect(function() 
+    if AB.active then 
+        AB.stop() 
+        task.wait(0.2) 
+        AB.start() 
+    end 
+end)
 
 -- ============================================================
 -- INSTA RESET (Chiraq Hub / NRHUB)
@@ -565,7 +638,7 @@ local function safeSetfpscap(v) if type(setfpscap) == "function" then pcall(setf
 local function safeSethiddenproperty(obj, prop, val) if type(sethiddenproperty) == "function" then pcall(sethiddenproperty, obj, prop, val) end end
 
 -- ============================================================
--- AUTO STEAL (NRHUB v2 - sistema avanzado)
+-- AUTO STEAL (NRHUB v2)
 -- ============================================================
 local AutoSteal = {
     Enabled = false,
@@ -785,6 +858,7 @@ local S = {
     
     antiRagdollEnabled = false, 
     medusaCounterEnabled = false,
+    medusaAutoReset = true,
     medusaDebounce = false, medusaLastUsed = 0, medusaConns = {}, MEDUSA_COOLDOWN = 25,
     unwalkEnabled = false,
     autoLeftEnabled = false, autoRightEnabled = false,
@@ -794,6 +868,7 @@ local S = {
     _btnBAT = nil, _bsBAT = nil, _l1BAT = nil, _l2BAT = nil,
     _btnSPD = nil, _bsSPD = nil, _l1SPD = nil, _l2SPD = nil,
     _btnRST = nil, _bsRST = nil, _l1RST = nil, _l2RST = nil,
+    _btnAB = nil, _bsAB = nil, _l1AB = nil, _l2AB = nil,
     _setPButtonActive = nil, speedCounterLabel = nil,
     batAimbotEnabled = false, batAimbotSetVisual = nil, batAimbotConn = nil,
     batAimbotSpeed = 56.5,
@@ -809,7 +884,7 @@ local S = {
     setLaggerVisual = nil, speedClk = nil, setFpsVisual = nil, setInfJumpVisual = nil,
     setAntiRagVisual = nil, setMedusaVisual = nil,
     setUnwalkVisual = nil, setDarkVisual = nil, setInstaGrab = nil,
-    setSpeedBypassVisual = nil,
+    setSpeedBypassVisual = nil, setMedusaResetVisual = nil,
     normalBox = nil, carryBox = nil, laggerBox = nil, lagger2Box = nil,
     radInput = nil, setLockUI_Visual = nil, setHideOpiumButtons = nil,
     autoTpDownEnabled = false,
@@ -843,6 +918,7 @@ local S = {
         AutoTPDown = {kb = Enum.KeyCode.T, gp = nil},
         SpeedBypass = {kb = Enum.KeyCode.V, gp = nil},
         InstaReset = {kb = Enum.KeyCode.B, gp = Enum.KeyCode.ButtonL1},
+        AntiBat = {kb = Enum.KeyCode.N, gp = nil},
     },
     Conns = {antiRag = nil, anchor = {}, progress = nil},
     moveConn = nil, speedEnabled = true, h = nil, hrp = nil,
@@ -1772,7 +1848,7 @@ function stopAutoRight()
     stopPatrol()
 end
 
--- Medusa Counter
+-- MEDUSA COUNTER con Medusa Auto Reset
 local function findMedusa()
     local char = LP.Character
     if not char then return nil end
@@ -1820,8 +1896,15 @@ end
 
 local function onAnchorChanged(part)
     return part:GetPropertyChangedSignal("Anchored"):Connect(function()
-        if part.Anchored and part.Transparency == 1 and S.medusaCounterEnabled then
-            useMedusaCounter()
+        if part.Anchored and part.Transparency == 1 then
+            -- Medusa Auto Reset: si está activado, hace insta reset al ser medusado
+            if S.medusaAutoReset and not S.batCounterEnabled then
+                instaReset()
+            end
+            -- Medusa Counter: si está activado, usa el item
+            if S.medusaCounterEnabled then
+                useMedusaCounter()
+            end
         end
     end)
 end
@@ -1980,7 +2063,8 @@ saveConfig = function()
             speedToggleKey = ks(S.KB.SpeedToggle), laggerToggleKey = ks(S.KB.LaggerToggle),
             grabRadius = AutoSteal.Radius, antiRagdoll = S.antiRagdollEnabled,
             autoStealEnabled = AutoSteal.Enabled, infiniteJump = S.infJumpEnabled,
-            medusaCounter = S.medusaCounterEnabled, carryMode = S.speedMode,
+            medusaCounter = S.medusaCounterEnabled, medusaAutoReset = S.medusaAutoReset,
+            carryMode = S.speedMode,
             batAimbot = S.batAimbotEnabled,
             batAimbotSpeed = S.batAimbotSpeed,
             unwalkEnabled = S.unwalkEnabled,
@@ -2004,6 +2088,8 @@ saveConfig = function()
             speedBypassEnabled = speedBypassEnabled,
             speedBypassKey = ks(S.KB.SpeedBypass),
             instaResetKey = ks(S.KB.InstaReset),
+            antiBatEnabled = AB.active,
+            antiBatKey = ks(S.KB.AntiBat),
         }
         local ok, data = pcall(function() return HS:JSONEncode(cfg) end)
         if ok and data then safeWritefile(S.CONFIG_FILE, data) end
@@ -2027,6 +2113,7 @@ updateFloatingButtons = function()
     if fb.bat then S._setPButtonActive(fb.bat, fb.strokeBat, fb.l1Bat, fb.l2Bat, S.batAimbotEnabled) end
     if fb.speedBypass then S._setPButtonActive(fb.speedBypass, fb.strokeSpeedBypass, fb.l1SpeedBypass, fb.l2SpeedBypass, speedBypassEnabled) end
     if fb.instaReset then S._setPButtonActive(fb.instaReset, fb.strokeInstaReset, fb.l1InstaReset, fb.l2InstaReset, false) end
+    if fb.antiBat then S._setPButtonActive(fb.antiBat, fb.strokeAntiBat, fb.l1AntiBat, fb.l2AntiBat, AB.active) end
     if fb.autoTPDown then S._setPButtonActive(fb.autoTPDown, fb.strokeAutoTPDown, fb.l1AutoTPDown, fb.l2AutoTPDown, S.autoTpDownEnabled) end
 end
 
@@ -2516,6 +2603,21 @@ local function buildMainTab(pages)
         end
         saveConfig()
     end, nil)
+    
+    -- Anti Bat Toggle (Fling Defense)
+    local setAntiBatVisual, _ = mkToggle("Main", pages, "Anti Bat (Fling)", S.KB.AntiBat.kb, false, function(on)
+        if on then
+            AB.toggle()
+        else
+            if AB.active then AB.toggle() end
+        end
+        updateFloatingButtons()
+        saveConfig()
+    end, function(k, isGp)
+        if isGp then S.KB.AntiBat.gp = k; S.KB.AntiBat.kb = nil
+        else S.KB.AntiBat.kb = k; S.KB.AntiBat.gp = nil end
+        saveConfig()
+    end)
 end
 
 local function buildMoveTab(pages)
@@ -2626,6 +2728,11 @@ local function buildMoveTab(pages)
         saveConfig()
     end, nil)
 
+    S.setMedusaResetVisual, _ = mkToggle("Move", pages, "Medusa Auto Reset", nil, true, function(on)
+        S.medusaAutoReset = on
+        saveConfig()
+    end, nil)
+
     local function actionRow(pg, lbl, keyEntry)
         local card = mkCard(pg, pages, 38)
         local lblObj = Instance.new("TextLabel", card)
@@ -2672,7 +2779,7 @@ local function buildConfigTab(pages)
     local C_OFF = Color3.fromRGB(60,60,60)
     local C_WHITE = Color3.fromRGB(255,255,255)
 
-    -- Auto Steal Toggle (NRHUB style)
+    -- Auto Steal Toggle
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -2726,7 +2833,7 @@ local function buildConfigTab(pages)
         local n = tonumber(v); if n and n >= 1 and n <= 1000 then S.autoTpDownHeightLimit = n; saveConfig() end
     end)
 
-    -- Insta Reset Toggle (Chiraq Hub)
+    -- Insta Reset Button
     do
         local card = mkCard("Config", pages, 38)
         local lbl = Instance.new("TextLabel", card)
@@ -2758,9 +2865,7 @@ local function buildConfigTab(pages)
     end
 
     -- Keybind para Insta Reset
-    local _, keyInstaResetBtn = mkToggle("Config", pages, "Insta Reset Keybind", S.KB.InstaReset.kb, false, function(on)
-        -- Esto es solo para mostrar el keybind, no es un toggle real
-    end, function(k, isGp)
+    local _, keyInstaResetBtn = mkToggle("Config", pages, "Insta Reset Keybind", S.KB.InstaReset.kb, false, function(on) end, function(k, isGp)
         if isGp then S.KB.InstaReset.gp = k; S.KB.InstaReset.kb = nil
         else S.KB.InstaReset.kb = k; S.KB.InstaReset.gp = nil end
         saveConfig()
@@ -3279,6 +3384,10 @@ local function buildGui()
                     if S._btnRST then S._setPButtonActive(S._btnRST, S._bsRST, S._l1RST, S._l2RST, false) end
                 end)
             end
+        elseif match(S.KB.AntiBat) then
+            AB.toggle()
+            updateFloatingButtons()
+            saveConfig()
         elseif match(S.KB.GuiHide) then
             if main.Visible then
                 main.Visible = false
@@ -3417,12 +3526,14 @@ local function createFloatingButtonPanel()
     local btnLAG, bsLAG, l1LAG, l2LAG = makePButton("LAGGER", "MODE", 7)
     local btnSPD, bsSPD, l1SPD, l2SPD = makePButton("SPEED", "BYPASS", 9)
     local btnRST, bsRST, l1RST, l2RST = makePButton("INSTA", "RESET", 10)
+    local btnAB, bsAB, l1AB, l2AB = makePButton("ANTI", "BAT", 11)
     local btnATD, bsATD, l1ATD, l2ATD = makePButton("AUTO TP", "DOWN", 8)
 
     S._btnAAL = btnAL; S._bsAAL = bsAL; S._l1AAL = l1AL; S._l2AAL = l2AL
     S._btnAAR = btnAR; S._bsAAR = bsAR; S._l1AAR = l1AR; S._l2AAR = l2AR
     S._btnBAT = btnBAT; S._bsBAT = bsBAT; S._l1BAT = l1BAT; S._l2BAT = l2BAT
     S._btnRST = btnRST; S._bsRST = bsRST; S._l1RST = l1RST; S._l2RST = l2RST
+    S._btnAB = btnAB; S._bsAB = bsAB; S._l1AB = l1AB; S._l2AB = l2AB
 
     S._floatingButtons = {
         lagger = btnLAG, strokeLagger = bsLAG, l1Lagger = l1LAG, l2Lagger = l2LAG,
@@ -3432,6 +3543,7 @@ local function createFloatingButtonPanel()
         bat = btnBAT, strokeBat = bsBAT, l1Bat = l1BAT, l2Bat = l2BAT,
         speedBypass = btnSPD, strokeSpeedBypass = bsSPD, l1SpeedBypass = l1SPD, l2SpeedBypass = l2SPD,
         instaReset = btnRST, strokeInstaReset = bsRST, l1InstaReset = l1RST, l2InstaReset = l2RST,
+        antiBat = btnAB, strokeAntiBat = bsAB, l1AntiBat = l1AB, l2AntiBat = l2AB,
         autoTPDown = btnATD, strokeAutoTPDown = bsATD, l1AutoTPDown = l1ATD, l2AutoTPDown = l2ATD,
     }
 
@@ -3444,6 +3556,7 @@ local function createFloatingButtonPanel()
     setButtonActive(btnBAT, bsBAT, l1BAT, l2BAT, S.batAimbotEnabled)
     setButtonActive(btnSPD, bsSPD, l1SPD, l2SPD, speedBypassEnabled)
     setButtonActive(btnRST, bsRST, l1RST, l2RST, false)
+    setButtonActive(btnAB, bsAB, l1AB, l2AB, AB.active)
     setButtonActive(btnATD, bsATD, l1ATD, l2ATD, S.autoTpDownEnabled)
 
     S.autoTpDownFloatVisual = function(state)
@@ -3502,6 +3615,12 @@ local function createFloatingButtonPanel()
         task.delay(0.8, function()
             setButtonActive(btnRST, bsRST, l1RST, l2RST, false)
         end)
+    end)
+    btnAB.MouseButton1Click:Connect(function()
+        AB.toggle()
+        setButtonActive(btnAB, bsAB, l1AB, l2AB, AB.active)
+        updateFloatingButtons()
+        saveConfig()
     end)
     btnAL.MouseButton1Click:Connect(function()
         local newState = not S.autoLeftEnabled
@@ -3610,7 +3729,6 @@ local function createHUD()
     topLabel.TextStrokeColor3 = Color3.fromRGB(128,0,128)
     topLabel.ClipsDescendants = true
     
-    -- Progress bar para Auto Steal
     S.progressBarFrame = Instance.new("Frame")
     S.progressBarFrame.Size = UDim2.new(0,235 * S.hudScale, 0,15 * S.hudScale)
     S.progressBarFrame.Position = UDim2.new(0.5, -235 * S.hudScale / 2, 0, 12 + 29 * S.hudScale + 5)
@@ -3642,7 +3760,6 @@ local function createHUD()
     S.progressPct.TextSize = 10.5
     S.progressPct.TextStrokeTransparency = 0.7
     
-    -- Conectar progress bar con AutoSteal
     AutoSteal.ProgressFill = S.progressFill
     AutoSteal.ProgressText = S.progressPct
     
@@ -3682,6 +3799,11 @@ local function loadConfig()
     if cfg.patrolGoingSpeed then patrolConfig.GoingSpeed = cfg.patrolGoingSpeed end
     if cfg.patrolStealSpeed then patrolConfig.StealSpeed = cfg.patrolStealSpeed end
     if cfg.speedBypassEnabled then speedBypassEnabled = cfg.speedBypassEnabled; setSpeedBypassEnabled(speedBypassEnabled) end
+    if cfg.antiBatEnabled then 
+        AB.active = cfg.antiBatEnabled
+        if AB.active then AB.start() else AB.stop() end
+        AB.refresh()
+    end
 
     if S.laggerMode == 0 then S.laggerMode = 1 end
 
@@ -3703,6 +3825,7 @@ local function loadConfig()
     if cfg.autoTPDownKey then tryLoadKey(S.KB.AutoTPDown, cfg.autoTPDownKey.kb, cfg.autoTPDownKey.gp) end
     if cfg.speedBypassKey then tryLoadKey(S.KB.SpeedBypass, cfg.speedBypassKey.kb, cfg.speedBypassKey.gp) end
     if cfg.instaResetKey then tryLoadKey(S.KB.InstaReset, cfg.instaResetKey.kb, cfg.instaResetKey.gp) end
+    if cfg.antiBatKey then tryLoadKey(S.KB.AntiBat, cfg.antiBatKey.kb, cfg.antiBatKey.gp) end
 
     if cfg.grabRadius then AutoSteal.Radius = cfg.grabRadius; if S.radInput then S.radInput.Text = tostring(cfg.grabRadius) end end
     if cfg.stealDuration then AutoSteal.Duration = cfg.stealDuration; if S.stealDurationBox then S.stealDurationBox.Text = tostring(cfg.stealDuration) end end
@@ -3715,6 +3838,7 @@ local function loadConfig()
     if cfg.infiniteJump and not cfg.holdJumpEnabled then S.infJumpEnabled = true; startInfiniteJump(); if S.setInfJumpVisual then S.setInfJumpVisual(true) end end
     if cfg.holdJumpEnabled then S.infJumpEnabled = false; if S.setInfJumpVisual then S.setInfJumpVisual(false) end; S.holdJumpEnabled = true; startHoldJump(); if S.setHoldJumpVisual then S.setHoldJumpVisual(true) end end
     if cfg.medusaCounter then S.medusaCounterEnabled = true; setupMedusaCounter(LP.Character); if S.setMedusaVisual then S.setMedusaVisual(true) end end
+    if cfg.medusaAutoReset ~= nil then S.medusaAutoReset = cfg.medusaAutoReset; if S.setMedusaResetVisual then S.setMedusaResetVisual(S.medusaAutoReset) end end
     if cfg.carryMode then S.speedMode = true; S.laggerMode = 0; if S.speedClk then S.speedClk(true) end end
     if cfg.laggerMode and cfg.laggerMode > 0 and not cfg.carryMode then S.laggerMode = cfg.laggerMode; if S.setLaggerVisual then S.setLaggerVisual(true) end end
     if cfg.batAimbot then setBatAimbot(true) end
@@ -3773,6 +3897,7 @@ local function loadConfig()
 
     local fb = S._floatingButtons
     if fb.lagger then updateLaggerButtonVisual() end
+    if fb.antiBat then setButtonActive(fb.antiBat, fb.strokeAntiBat, fb.l1AntiBat, fb.l2AntiBat, AB.active) end
 
     S.restartMovement()
     updateFloatingButtons()
@@ -3798,6 +3923,7 @@ task.spawn(function()
     if S.autoLeftEnabled then startAutoLeft() end
     if S.autoRightEnabled then startAutoRight() end
     if speedBypassEnabled then setSpeedBypassEnabled(true) end
+    if AB.active then AB.start() end
 end)
 
 if LP.Character then task.wait(0.3); S.setupSpeedBillboard(LP.Character) end
@@ -3836,6 +3962,7 @@ LP.CharacterAdded:Connect(function(char)
         createStunTimerBillboard()
     end
     if speedBypassEnabled then setSpeedBypassEnabled(true) end
+    if AB.active then AB.start() end
 end)
 
 if LP.Character then
@@ -3868,5 +3995,6 @@ if LP.Character then
             createStunTimerBillboard()
         end
         if speedBypassEnabled then setSpeedBypassEnabled(true) end
+        if AB.active then AB.start() end
     end)
 end
